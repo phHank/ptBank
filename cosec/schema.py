@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 import graphene
 from graphene_django import DjangoObjectType
 
-from .models import ClientProfile, Company, UserProfile
+from .models import ClientProfile, Company
 
 class ClientType(DjangoObjectType):
     class Meta:
@@ -13,15 +13,11 @@ class CompanyType(DjangoObjectType):
     class Meta:
         model = Company
 
-class UserProfileType(DjangoObjectType):
-    class Meta:
-        model = UserProfile
 
 
 class Query(graphene.ObjectType):
     clients = graphene.List(ClientType)
     companies = graphene.List(CompanyType, client_id=graphene.Int())
-    user_profile = graphene.List(UserProfileType)
 
     def resolve_clients(self, info, **kwargs):
         user = info.context.user
@@ -42,13 +38,6 @@ class Query(graphene.ObjectType):
             return Company.objects.all()
 
         return Company.objects.filter(client_id=kwargs['client_id']).all()
-
-    def resolve_client_profile(self, info, **kwargs):
-        user = info.context.user
-        if user.is_anonymous:
-            raise Exception('Not logged in!')
-
-        return UserProfileType.objects.filter(user=user.id).all()
 
 
 
@@ -121,44 +110,6 @@ class CreateCompany(graphene.Mutation):
 
 
 
-class CreateUserProfile(graphene.Mutation):
-    user_profile = graphene.Field(UserProfileType)
-
-    class Arguments:
-        username = graphene.String(required=True)
-        password = graphene.String(required=True)
-        email = graphene.String(required=True)
-        client_id = graphene.Int()
-        is_staff = graphene.Boolean()
-        g1 = graphene.Boolean()
-        g2 = graphene.Boolean()
-
-    def mutate(self, info, username, password, email, client_id=None, g1=False, g2=False, is_staff=False):
-        creator = info.context.user
-        if creator.is_anonymous:
-            raise Exception('Not Logged in!')
-
-        if not creator.is_superuser and is_staff:
-            raise Exception('Permission denied, only superuser can create staff profile!')
-        
-        user = get_user_model()(
-            username = username,
-            email = email
-        )
-        user.is_staff = is_staff
-        user.set_password(password)
-        user.save()
-
-        client = ClientProfile.objects.filter(pk=client_id).first()
-        
-        user_profile = UserProfile(user=user, client_profile=client, g1=g1, g2=g2)
-        user_profile.save()
-
-        return CreateUserProfile(user_profile=user_profile)
-
-
-
 class Mutation (graphene.ObjectType):
     create_company = CreateCompany.Field()
     create_client_profile = CreateClientProfile.Field()
-    create_user_profile = CreateUserProfile.Field()

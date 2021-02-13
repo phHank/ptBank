@@ -31,16 +31,6 @@ class ClientProfile(models.Model):
         return f'{self.first_name} {self.surnames}' if self.first_name else self.company
 
 
-
-class UserProfile(models.Model): 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=False)
-    client_profile = models.ForeignKey(ClientProfile, on_delete=models.CASCADE, null=True)
-    g1 = models.BooleanField(default=False, null=False)
-    g2 = models.BooleanField(default=False, null=False)
-
-
-
-
 class Company(models.Model):
     client_id = models.ForeignKey(ClientProfile, on_delete=models.CASCADE)
     co_name = models.CharField(max_length=200, null=False)

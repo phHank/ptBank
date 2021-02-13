@@ -7,6 +7,8 @@ from cosec.models import Company
 import time
 import datetime
 
+
+
 class BankAccount(models.Model):
     company = models.ForeignKey(
         Company, 
@@ -25,6 +27,8 @@ class BankAccount(models.Model):
    
     def __str__(self):
       return f'{self.account_name} {self.iban if self.iban else self.account_no}'
+
+
 
 class Transfer(models.Model):
     company = models.ForeignKey(
