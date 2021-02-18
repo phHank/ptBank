@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'cosec',
     'transfers',
     'users',
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -136,4 +138,9 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
-# TODO: implement CORS for frontend DEV. 
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3002',
+    'https://studio.apollographql.com'
+]
+
+CORS_ALLOW_CREDENTIALS = True
