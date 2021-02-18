@@ -1,5 +1,9 @@
 import React from 'react'
 
-const App = () => <h1>Hello World</h1>
+import Login from './Login'
+
+// TODO: install react router
+
+const App = () => <Login />
 
 export default App
