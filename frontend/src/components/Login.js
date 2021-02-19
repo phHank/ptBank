@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 
+import { useHistory } from 'react-router'
+
 import { useMutation, gql } from '@apollo/client'
 
 const LOGIN_MUTATION = gql`
@@ -19,22 +21,24 @@ const Login = () => {
         password: ''
     })
 
-    //const history = useHistory()
+    const history = useHistory()
 
     const [logIn] = useMutation(LOGIN_MUTATION, {
         variables: {
             username: formState.username,
             password: formState.password
         },
-        // onCompleted: history.pushState('/profiles/formState.username')
+        onCompleted: ({tokenAuth}) => {
+          // TODO: tokenAuth.token: store token locally for authentication: use HttpOnly Cookie. 
+          history.push('/')
+        }
     })
 
     return (
         <div>
         <form onSubmit={e => {
             e.preventDefault()
-            let result = logIn()
-            console.log(result)
+            logIn()
         }
         }>
             <input
