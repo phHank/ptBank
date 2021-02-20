@@ -10,7 +10,7 @@ import { useMutation, gql } from '@apollo/client'
 
 import Login from './Login'
 import NotFound from './NotFound'
-import Profile from './Profile'
+import Dashboard from './Dashboard'
 
 export const CHECK_TOKEN_EXPIRY_MUTATION = gql`
 mutation CheckTokenExpiryMutation(
@@ -80,8 +80,8 @@ const App = () => {
             />
             <Route 
               exact 
-              path='/profiles/:username' 
-              render={() => <Profile user={tokenPayload.username}/>} 
+              path='/dashboard' 
+              render={() => <Dashboard user={tokenPayload.username}/>} 
             />
             <Route component={NotFound} />
         </Switch>

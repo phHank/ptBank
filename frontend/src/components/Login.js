@@ -21,6 +21,7 @@ const Login = ({setToken}) => {
         username: '',
         password: ''
     })
+    const [loginError, setLoginError] = useState('')
 
     const history = useHistory()
 
@@ -33,43 +34,57 @@ const Login = ({setToken}) => {
           setToken(tokenAuth.token)
 
           history.location.pathname === '/' 
-            ? history.push(`/profiles/${formState.username}`)
+            ? history.push('/dashboard')
             : history.push(history.location.pathname)
-        }
+        },
+        onError: ({message}) => setLoginError(message) 
     })
 
     return (
-        <div>
-          <form onSubmit={e => {
+      <>
+        {loginError && <p className='error-message'>{loginError}</p>}
+        <div className='d-flex align-items-center justify-content-center mt-5 login'>
+          <form 
+            onSubmit={e => {
               e.preventDefault()
               logIn()
-          }
-          }>
-              <input
-                type='text' 
-                placeholder='Username'
-                onChange={e => {
-                  setFormState({
-                      ...formState,
-                      username: e.target.value
-                  })
-                  }}
-                value={formState.username}
-                />
-              <input
-                type='password' 
-                placeholder='Password'
-                onChange={e => {
-                  setFormState({
-                      ...formState,
-                      password: e.target.value
-                  })
-                  }}
-                value={formState.password}
-                />
-              <button type='submit'>Enter</button>
+            }}
+          >
+            <input
+              id="username" 
+              className='lf--input' 
+              placeholder='Username'
+              type='text' 
+              required="required"
+              onChange={e => {
+                setFormState({
+                    ...formState,
+                    username: e.target.value
+                })
+                setLoginError('')
+              }}
+              value={formState.username}
+            />
+            <input
+              id="password" 
+              className='lf--input'
+              type='password' 
+              placeholder='Password'
+              required="required"
+              onChange={e => {
+                setFormState({
+                    ...formState,
+                    password: e.target.value
+                })
+                setLoginError('')
+                }}
+              value={formState.password}
+              
+            />
+            <button type="submit" className="btn btn-primary btn-block btn-large">Login</button>
           </form>
         </div>
+      </>
     )
 }
 
