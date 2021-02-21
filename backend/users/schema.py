@@ -4,6 +4,8 @@ from .models import UserProfile
 import graphene
 from graphene_django import DjangoObjectType
 
+from cosec.schema import ClientType
+
 class UserType(DjangoObjectType):
     class Meta:
         model = get_user_model()
@@ -18,11 +20,16 @@ class UserProfileType(DjangoObjectType):
 class Query(graphene.ObjectType):
     users = graphene.List(UserType)
     user_profile = graphene.List(UserProfileType)
+    client_profile = graphene.List(ClientType)
 
     def resolve_users(self, info, **kwargs):
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('Not logged in!')
+        
         return get_user_model().objects.all()
 
-    def resolve_client_profile(self, info, **kwargs):
+    def resolve_user_profile(self, info, **kwargs):
         user = info.context.user
         if user.is_anonymous:
             raise Exception('Not logged in!')

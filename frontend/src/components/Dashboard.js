@@ -1,8 +1,8 @@
 import React from 'react'
 
-const Dashboard = ({user}) => (
+const Dashboard = ({userProfile}) => (
     <div className='dashboard'>
-        <p>Hi {user}!</p>
+        <p>Hi {JSON.stringify(userProfile)}!</p>
     </div>
 )
 

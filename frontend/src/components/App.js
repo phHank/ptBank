@@ -6,7 +6,7 @@ import {
     Route
 } from 'react-router-dom'
 
-import { useMutation, gql } from '@apollo/client'
+import { useMutation, useLazyQuery, gql } from '@apollo/client'
 
 import Login from './Login'
 import NotFound from './NotFound'
@@ -33,11 +33,33 @@ mutation RefreshTokenMutation(
   }
 `
 
+export const PROFILE_DATA_QUERY = gql`
+query ProfileDataQuery {
+    userProfile {
+        user {
+            id
+            username
+            email
+            isStaff
+            isSuperuser
+        }
+        clientProfile {
+            id
+        }
+        g1
+        g2
+        g3
+    }
+}
+`
+
 export let AUTH_TOKEN
 
 const App = () => {
     const [jwtToken, setJwtToken] = useState('')
     const [tokenPayload, setTokenPayload] = useState({})
+
+    const [getProfileData, {data, error}] = useLazyQuery(PROFILE_DATA_QUERY)
 
     const [getTokenPayload] = useMutation(CHECK_TOKEN_EXPIRY_MUTATION, {
         variables: {
@@ -45,6 +67,7 @@ const App = () => {
         }, 
         onCompleted: ({verifyToken}) => {
             setTokenPayload(verifyToken.payload)
+            getProfileData()
         }
     })
 
@@ -72,19 +95,23 @@ const App = () => {
     if (!jwtToken) return <Login setToken={setJwtToken} />
 
     return (
-        <Switch>
-            <Route 
-              exact 
-              path='/login' 
-              render={() => <Login setToken={setJwtToken} />}
-            />
-            <Route 
-              exact 
-              path='/dashboard' 
-              render={() => <Dashboard user={tokenPayload.username}/>} 
-            />
-            <Route component={NotFound} />
-        </Switch>
+        <>
+            {error && <p className='error-message'>Error getting profile data: {error.message}</p>}
+            {!data?.userProfile && <p className='error-message'>Profile not found!</p>}
+            <Switch>
+                <Route 
+                exact 
+                path='/login' 
+                render={() => <Login setToken={setJwtToken} />}
+                />
+                <Route 
+                exact 
+                path='/dashboard' 
+                render={() => <Dashboard userProfile={data} />} 
+                />
+                <Route component={NotFound} />
+            </Switch>
+        </>
     )
 }
 
