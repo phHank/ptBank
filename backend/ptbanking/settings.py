@@ -61,7 +61,7 @@ ROOT_URLCONF = 'ptbanking.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'ptbanking/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -136,7 +136,7 @@ GRAPHENE = {
 GRAPHQL_JWT = {
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=5),
-    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(minutes=5)
+    'JWT_REFRESH_EXPIRATION_DELTA': datetime.timedelta(hours=1)
 }
 
 AUTHENTICATION_BACKENDS = [
