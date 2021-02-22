@@ -12,23 +12,13 @@ import Login from './Login'
 import NotFound from './NotFound'
 import Dashboard from './Dashboard'
 
-export const CHECK_TOKEN_EXPIRY_MUTATION = gql`
-mutation CheckTokenExpiryMutation(
-    $token: String!
-) {
-    verifyToken(token: $token) {
-        payload
-    }
-}
-`
-
-export const REFRESH_TOKEN_MUTATION = gql`
+const REFRESH_TOKEN_MUTATION = gql`
 mutation RefreshTokenMutation(
     $token: String!
 ){
     refreshToken(token: $token) {
       token
-      refreshExpiresIn
+      payload
     }
   }
 `
@@ -38,6 +28,7 @@ query ProfileDataQuery {
     userProfile {
         user {
             id
+            firstName
             username
             email
             isStaff
@@ -56,43 +47,32 @@ query ProfileDataQuery {
 export let AUTH_TOKEN
 
 const App = () => {
-    const [jwtToken, setJwtToken] = useState('')
-    const [tokenPayload, setTokenPayload] = useState({})
+    const [jwtTokenInfo, setJwtTokenInfo] = useState('')
 
     const [getProfileData, {data, error}] = useLazyQuery(PROFILE_DATA_QUERY)
 
-    const [getTokenPayload] = useMutation(CHECK_TOKEN_EXPIRY_MUTATION, {
-        variables: {
-            token: jwtToken
-        }, 
-        onCompleted: ({verifyToken}) => {
-            setTokenPayload(verifyToken.payload)
-            getProfileData()
-        }
-    })
-
     useEffect(() => {
-        if (jwtToken) getTokenPayload()
-        AUTH_TOKEN = jwtToken
-    }, [jwtToken])
+        AUTH_TOKEN = jwtTokenInfo.token
+        getProfileData()
+    }, [jwtTokenInfo])
 
     const [refreshToken] = useMutation(REFRESH_TOKEN_MUTATION, {
         variables: {
-            token: jwtToken,
+            token: jwtTokenInfo.token,
         },
         onCompleted: ({refreshToken}) => {
-          setJwtToken(refreshToken.token)
+            setJwtTokenInfo(refreshToken)
         }
     })
 
     useInterval(() => {
-        const orderRefreshToken = tokenPayload.exp - Math.floor(Date.now() / 1000) < 30
-        if (jwtToken && orderRefreshToken) {
-            refreshToken()
+        if (jwtTokenInfo.token) {
+            const orderRefreshToken = jwtTokenInfo.payload.exp - Math.floor(Date.now() / 1000) < 30
+            if (orderRefreshToken) refreshToken()
         }
     }, 15000)
 
-    if (!jwtToken) return <Login setToken={setJwtToken} />
+    if (!jwtTokenInfo.token) return <Login setTokenInfo={setJwtTokenInfo} />
 
     return (
         <>
@@ -102,7 +82,7 @@ const App = () => {
                 <Route 
                 exact 
                 path='/login' 
-                render={() => <Login setToken={setJwtToken} />}
+                render={() => <Login setTokenInfo={setJwtTokenInfo} />}
                 />
                 <Route 
                 exact 

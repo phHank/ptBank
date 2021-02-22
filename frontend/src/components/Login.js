@@ -4,19 +4,19 @@ import { useHistory } from 'react-router'
 
 import { useMutation, gql } from '@apollo/client'
 
-export const LOGIN_MUTATION = gql`
+const LOGIN_MUTATION = gql`
 mutation LoginMutation(
     $username: String!
     $password: String!
 ){
     tokenAuth(username: $username, password:$password) {
       token
-      refreshExpiresIn
+      payload
     }
   }
 `
 
-const Login = ({setToken}) => {
+const Login = ({setTokenInfo}) => {
     const [formState, setFormState] = useState({
         username: '',
         password: ''
@@ -31,7 +31,7 @@ const Login = ({setToken}) => {
             password: formState.password
         },
         onCompleted: ({tokenAuth}) => {
-          setToken(tokenAuth.token)
+          setTokenInfo(tokenAuth)
 
           history.location.pathname === '/' 
             ? history.push('/dashboard')
