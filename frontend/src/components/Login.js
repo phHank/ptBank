@@ -42,7 +42,7 @@ const Login = ({setTokenInfo}) => {
 
     return (
       <>
-        {loginError && <p className='error-message'>{loginError}</p>}
+        {loginError && <p className='w-100 error-message'>{loginError}</p>}
         <div className='d-flex align-items-center justify-content-center mt-5 login'>
           <form 
             onSubmit={e => {
@@ -52,7 +52,7 @@ const Login = ({setTokenInfo}) => {
           >
             <input
               id="username" 
-              className='lf--input' 
+              className='lf--input w-100' 
               placeholder='Username'
               type='text' 
               required="required"
@@ -67,7 +67,7 @@ const Login = ({setTokenInfo}) => {
             />
             <input
               id="password" 
-              className='lf--input'
+              className='lf--input w-100'
               type='password' 
               placeholder='Password'
               required="required"

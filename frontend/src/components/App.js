@@ -8,9 +8,14 @@ import {
 
 import { useMutation, useLazyQuery, gql } from '@apollo/client'
 
+import Nav from './Nav'
 import Login from './Login'
 import NotFound from './NotFound'
 import Dashboard from './Dashboard'
+import ClientList from './clients/ClientList'
+import CompanyList from './companies/CompanyList'
+import BankDashboard from './banking/BankDashboard'
+import Footer from './Footer'
 
 const REFRESH_TOKEN_MUTATION = gql`
 mutation RefreshTokenMutation(
@@ -72,10 +77,13 @@ const App = () => {
         }
     }, 15000)
 
-    if (!jwtTokenInfo.token) return <Login setTokenInfo={setJwtTokenInfo} />
-
+    if (!jwtTokenInfo.token || jwtTokenInfo.payload.exp < Math.floor(Date.now() / 1000)) {
+        return <Login setTokenInfo={setJwtTokenInfo} />
+    }
+    
     return (
         <>
+            <Nav firstName={data?.userProfile[0].user.firstName}/>
             {error && <p className='error-message'>Error getting profile data: {error.message}</p>}
             {!data?.userProfile && <p className='error-message'>Profile not found!</p>}
             <Switch>
@@ -87,10 +95,14 @@ const App = () => {
                 <Route 
                 exact 
                 path='/dashboard' 
-                render={() => <Dashboard userProfile={data} />} 
+                render={() => <Dashboard profileData={data?.userProfile[0]} />} 
                 />
+                <Route exact path='/clients' component={ClientList} />
+                <Route exact path='/companies' component={CompanyList} />
+                <Route exact path='/banking' component={BankDashboard} />
                 <Route component={NotFound} />
             </Switch>
+            <Footer />
         </>
     )
 }
