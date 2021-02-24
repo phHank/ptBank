@@ -13,6 +13,7 @@ import Login from './Login'
 import NotFound from './NotFound'
 import Dashboard from './Dashboard'
 import ClientList from './clients/ClientList'
+import ClientProfile from './clients/ClientProfile'
 import CompanyList from './companies/CompanyList'
 import BankDashboard from './banking/BankDashboard'
 import Footer from './Footer'
@@ -83,7 +84,7 @@ const App = () => {
     
     return (
         <>
-            <Nav firstName={data?.userProfile[0].user.firstName}/>
+            <Nav profileData={data?.userProfile[0]}/>
             {error && <p className='error-message'>Error getting profile data: {error.message}</p>}
             {!data?.userProfile && <p className='error-message'>Profile not found!</p>}
             <Switch>
@@ -93,11 +94,12 @@ const App = () => {
                 render={() => <Login setTokenInfo={setJwtTokenInfo} />}
                 />
                 <Route 
-                exact 
-                path='/dashboard' 
-                render={() => <Dashboard profileData={data?.userProfile[0]} />} 
+                  exact 
+                  path='/'
+                  render={() => <Dashboard profileData={data?.userProfile[0]} />}
                 />
                 <Route exact path='/clients' component={ClientList} />
+                <Route exact path='/clients/:id' component={ClientProfile} />
                 <Route exact path='/companies' component={CompanyList} />
                 <Route exact path='/banking' component={BankDashboard} />
                 <Route component={NotFound} />

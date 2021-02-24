@@ -34,7 +34,7 @@ const Login = ({setTokenInfo}) => {
           setTokenInfo(tokenAuth)
 
           history.location.pathname === '/' 
-            ? history.push('/dashboard')
+            ? history.push('/')
             : history.push(history.location.pathname)
         },
         onError: ({message}) => setLoginError(message) 

@@ -1,31 +1,43 @@
 import React, { useState } from 'react'
 
-import { useHistory } from 'react-router'
+import { useLocation } from 'react-router'
+import { NavLink } from 'react-router-dom'
 
 import Nav from 'react-bootstrap/Nav'
 import Navbar from 'react-bootstrap/Navbar'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
+import { linkStyle } from '../utils/constants'
 
 
-const Navigation = ({firstName}) => {
+const Navigation = ({profileData}) => {
     const [query, setQuery] = useState('')
-    const history = useHistory()
+    const location = useLocation()
 
     return (
-        <Navbar className='d-flex justify-content-between' style={{opacity: 0.5}} bg='dark' variant="dark" >
-            <div className='text-light'>Hi {firstName}</div>
+        <Navbar 
+          className='d-flex justify-content-between px-2' 
+          style={{opacity: 0.5}} 
+          bg='dark' 
+          variant="dark" 
+        >
+            <NavLink to='/' style={linkStyle}>Hi {profileData?.user?.firstName}</NavLink>
             <div className='d-flex justify-content-center align-items-center'>
                 <h1>
-                    <Navbar.Brand href="https://www.pearse-trust.ie/">Pearse Trust Online</Navbar.Brand>
+                    <Navbar.Brand href='https://www.pearse-trust.ie/' target='_blank'>
+                        Your Brand Here
+                    </Navbar.Brand>
                 </h1>
-                <Nav className="mr-auto">
-                    <Nav.Link href="#">Home</Nav.Link>
-                    <Nav.Link href="#">| Features</Nav.Link>
-                    <Nav.Link href="#">| Pricing</Nav.Link>
+                <Nav>
+                    <NavLink to='/' style={linkStyle}>| Home</NavLink>
+                    {profileData?.user?.isStaff && <NavLink to='/clients' style={linkStyle}>| Clients</NavLink>}
+                    <NavLink to='/companies' style={linkStyle}>| Companies</NavLink>
+                    {profileData?.g1 && <NavLink to='/legal' style={linkStyle}>| Legal</NavLink>}
+                    {profileData?.g2 && <NavLink to='/cosec' style={linkStyle}>| Co-Sec</NavLink>}
+                    {profileData?.g3 && <NavLink to='/banking' style={linkStyle}>| Banking</NavLink>}
                 </Nav>
             </div>
-            {!history.location.pathname.includes('/dashboard') && (
+            {location.pathname !== '/' && (
                 <Form onSubmit={e => {
                     e.preventDefault()
                     history.push(`/search`)
