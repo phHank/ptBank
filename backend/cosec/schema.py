@@ -5,6 +5,8 @@ from graphene_django import DjangoObjectType
 
 from .models import ClientProfile, Company
 
+import time
+
 class ClientType(DjangoObjectType):
     class Meta:
         model = ClientProfile
@@ -70,7 +72,8 @@ class CreateClientProfile(graphene.Mutation):
         new_client = ClientProfile(
             first_name=first_name, surnames=surnames, 
             title=title, gender=gender, 
-            company_name=company_name, created_by=creator, 
+            company_name=company_name, created_by=creator,
+            date_created=int(time.time()), updated_by=creator,
             phone=phone, email=email, 
             )
         new_client.save()

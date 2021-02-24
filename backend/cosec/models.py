@@ -17,14 +17,14 @@ class ClientProfile(models.Model):
         on_delete=models.SET_NULL, 
         related_name='client_created_by'
         )
-    date_created = models.IntegerField(null=False, default=int(time.time()))
+    date_created = models.IntegerField(null=False)
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         null=True, 
         on_delete=models.SET_NULL, 
         related_name='client_updated_by'
         )
-    last_updated = models.IntegerField()
+    last_updated = models.IntegerField(null=False, default=int(time.time()))
     deleted = models.BooleanField(default=False)
 
     def __str__(self):
@@ -32,18 +32,18 @@ class ClientProfile(models.Model):
 
 
 class Company(models.Model):
-    client_id = models.ForeignKey(ClientProfile, on_delete=models.CASCADE)
+    client_profile = models.ForeignKey(ClientProfile, on_delete=models.CASCADE)
     co_name = models.CharField(max_length=200, null=False)
     address = models.CharField(max_length=200)
     country = models.CharField(max_length=200)
-    created = models.ForeignKey(
+    created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         null=True, 
         on_delete=models.SET_NULL, 
         related_name='company_created_by'
         )
     date_created = models.IntegerField(null=False, default=int(time.time()))
-    updated = models.ForeignKey(
+    updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         null=True, 
         on_delete=models.SET_NULL, 
