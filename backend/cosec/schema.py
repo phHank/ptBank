@@ -4,6 +4,7 @@ import graphene
 from graphene_django import DjangoObjectType
 
 from .models import ClientProfile, Company
+from users.models import UserProfile as Profile
 
 import time
 
@@ -18,18 +19,33 @@ class CompanyType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    clients = graphene.List(ClientType)
+    clients = graphene.List(ClientType, client_id=graphene.Int())
     companies = graphene.List(CompanyType, client_id=graphene.Int())
 
-    def resolve_clients(self, info, **kwargs):
+    def resolve_clients(self, info, client_id=None, **kwargs):
         user = info.context.user
         if user.is_anonymous:
             raise Exception('Not logged in!')
 
+        if client_id:
+            if not user.is_staff:
+                profile = Profile.objects.filter(user=user).first().client_profile
+
+                if not profile:
+                    raise Exception('User not associated with client profile.')
+
+                if profile.id != client_id:
+                    raise Exception('Access denied for requested profile.')
+
+            client_profile = ClientProfile.objects.filter(pk=client_id).all()
+
+            if not client_profile:
+                raise Exception('Client profile not found.')
+
+            return client_profile
+
         if user.is_staff:
             return ClientProfile.objects.all()
-        else:
-            raise Exception('Permission Denied!')
 
     def resolve_companies(self, info, **kwargs):
         user = info.context.user
