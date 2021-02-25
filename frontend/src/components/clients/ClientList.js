@@ -10,8 +10,8 @@ import ClientRow from './ClientRow'
 
 
 export const GET_CLIENTS_QUERY = gql`
-query GetClientsQuery {
-    clients {
+query GetClientsQuery ($clientId: Int) {
+    clients (clientId: $clientId) {
       id
       firstName
       surnames
@@ -66,7 +66,9 @@ mutation NewClientMutation (
 `
 
 const ClientList = () => {
-    const {data, loading, error} = useQuery(GET_CLIENTS_QUERY)
+    const {data, loading, error} = useQuery(GET_CLIENTS_QUERY, {
+      variables: {clientId: 1}
+    })
 
     if (loading) return (
         <div className='d-flex w-100 h-100 justify-content-center'>
@@ -74,7 +76,7 @@ const ClientList = () => {
         </div>
     )
 
-    // Todo  useMutation to create new client with. 
+    // TODO  useMutation to create new client. 
 
     return (
         <>
@@ -96,10 +98,6 @@ const ClientList = () => {
                         {data?.clients.map(client => <ClientRow key={client.id} clientData={client} />)}
                     </tbody>
                 </Table>
-                
-                <ul>
-
-                </ul>
             </Jumbotron>
         </>
     )

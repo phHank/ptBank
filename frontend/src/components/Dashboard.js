@@ -24,7 +24,7 @@ const Dashboard = ({profileData}) => {
                         </DashboardCard>)
                     }
                     {user.isStaff && <DashboardCard header={'Clients'} route={'/clients'}>Find client information.</DashboardCard>}
-                    {user.isStaff && <DashboardCard header={'Companies'} route={'/companies'}>View company information.</DashboardCard>}
+                    <DashboardCard header={'Companies'} route={'/companies'}>View company information.</DashboardCard>
                     {g1 && <DashboardCard header={'Legal'} route={'/legal'}>Do what legal does.</DashboardCard>}
                     {g2 && <DashboardCard header={'Company Secretarial'} route={'/cosec'}>File records and update company info.</DashboardCard>}
                     {g3 && <DashboardCard header={'Banking'} route={'/banking'}>Bank transfers, statements, and account openings &amp; closures.</DashboardCard>}
