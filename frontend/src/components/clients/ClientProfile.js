@@ -3,7 +3,7 @@ import React from 'react'
 import { useHistory, Redirect } from 'react-router-dom'
 
 import { useQuery } from '@apollo/client'
-import {GET_CLIENTS_QUERY} from './ClientList'
+import { GET_CLIENTS_QUERY } from './ClientList'
 
 import Card from 'react-bootstrap/Card'
 import Spinner from 'react-bootstrap/Spinner'
@@ -46,7 +46,13 @@ const ClientProfile = () => {
               ? (<p className='error-message'>Error getting client data: {requestError}</p>)
               : (
                 <Card bg='dark' text='light' className='m-5' style={{opacity: 0.75}}>
-                    <Card.Img variant='top' src={clientData.companyName ? clientCoImg : clientImg} />
+                    <div className='w-100 d-flex justify-content-center' >
+                        <Card.Img 
+                        style={{maxWidth: 300}}
+                        variant='top' 
+                        src={clientData.companyName ? clientCoImg : clientImg} 
+                        />
+                    </div>
                     <Card.Body>
                     <Card.Title>
                         {clientData.companyName 

@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 
+import { useHistory }from 'react-router-dom'
+
 import { useMutation, gql } from '@apollo/client'
 
 import { genderList, titleList, countryList } from '../../utils/constants'
@@ -8,6 +10,8 @@ import Accordion from 'react-bootstrap/Accordion'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 
+import TextInput from '../forms/TextInput'
+import SelectInput from '../forms/SelectInput' 
 
 export const NEW_CLIENT_MUTATION = gql`
 mutation NewClientMutation (
@@ -15,7 +19,7 @@ mutation NewClientMutation (
     $surnames: String
     $companyName: String
     $gender: String!
-    $title: String
+    $title: String!
     $email: String!
     $phone:  String!
 ){
@@ -28,20 +32,21 @@ mutation NewClientMutation (
       email: $email
       phone: $phone
     ) {
-        clientProfile {
+    clientProfile {
         id
+        companyName
         email
         firstName
         surnames
         createdBy {
-          username
+            username
         }
         dateCreated
         updatedBy {
-          username
+            username
         }
         lastUpdated
-         }
+        }
     }
   }
 `
@@ -54,12 +59,40 @@ const AddClientForm = () => {
         gender: '',
         title: '',
         email: '',
-        phone: ''
+        phone: '',
+        country: ''
     })
+    const [error, setError] = useState(null)
 
-    //TODO useMutation to create new client profile. 
+    const history = useHistory()
 
-    //TODO create components for each input type below. 
+    const [createCLient] = useMutation(NEW_CLIENT_MUTATION, {
+        variables: {
+            firstName: formData.firstName,
+            surnames: formData.surnames,
+            companyName: formData.companyName,
+            gender: formData.gender,
+            title: formData.title,
+            email: formData.email,
+            phone:  formData.phone
+        },
+        onCompleted: ({createClientProfile}) => {
+            history.push({
+                pathname: `/clients/${createClientProfile.clientProfile.id}`,
+                clientData: createClientProfile.clientProfile
+            })
+        },
+        onError: error => {
+            setError(error)
+        }
+    }) 
+
+    const handleChange = (event, name) => {
+        setFormData({
+            ...formData,
+            [name]: event.target.value
+        })
+    }
 
     return (
         <Accordion defaultActiveKey='0' className='w-75 h-100' style={{opacity: 0.75}}>
@@ -69,83 +102,68 @@ const AddClientForm = () => {
                         Create New Client
                     </Accordion.Toggle>
                 </Card.Header>
+                {error && <p className='error-message'>Error creating new client profile: {error.message}</p>}
                 <Accordion.Collapse eventKey='1'>
-                    <form className='p-3' onSubmit={e => e.preventDefault()}>
+                    <form 
+                      className='p-3' 
+                      onSubmit={e => {  
+                        e.preventDefault()
+                        if (!formData.companyName && !(formData.firstName && formData.surnames)) {
+                            setError({message: "You must provide a either a company or personal name!"})
+                            return
+                        }
+                        createCLient()
+                      }}
+                    >
                         <div className='form-row'>
-                            <div className='form-group col-md-6'>
-                                <label htmlFor='coName'>Company**</label>
-                                <input type='text' className='form-control' id='coName' placeholder='Company Ltd' />
-                            </div>
-                            <div className='form-group col-md-6'>
-                                <label htmlFor='firstName'>First Name**</label>
-                                <input type='text' className='form-control' id='firstName' placeholder='First Name' />
-                            </div>
-                            <div className='form-group col-md-6'>
-                                <label htmlFor='surnames'>Surname(s)**</label>
-                                <input type='text' className='form-control' id='surnames' placeholder='Second Name(s)' />
-                            </div>
-                            <small>** company or name must be provided</small>
-                            <div className='form-group col-md-4'>
-                                <label htmlFor='inputGender'>Gender</label>
-                                <select id='inputGender' className='form-control' defaultValue='choose'>
-                                    <option value='choose' disabled>Genders...</option>
-                                    <option value='Male' disabled>Female</option>
-                                    <option value='Female' disabled>Male</option>
-                                    <option value='Other' disabled>Other</option>
-                                </select>
-                            </div>
-                            <div className='form-group col-md-4'>
-                                <label htmlFor='inputTitle'>Title</label>
-                                <select id='inputTitle' className='form-control' defaultValue='title'>
-                                    <option value='title' disabled>Title...</option>
-                                    <option value='Male' disabled>Ms</option>
-                                    <option value='Female' disabled>Mrs</option>
-                                    <option value='Other' disabled>Mr</option>
-                                </select>
-                            </div>
-                            <div className='form-group col-md-6'>
-                                <label htmlFor='email'>Email*</label>
-                                <input type='email' className='form-control' id='email' placeholder='example@example.com' />
-                            </div>
-                            <div className='form-group col-md-6'>
-                                <label htmlFor='text'>Phone*</label>
-                                <input type='text' className='form-control' id='email' placeholder='+353 123 4567' />
-                            </div>
+                            <TextInput 
+                              name={'companyName'}
+                              placeholder={'Company Ltd'} 
+                              value={formData.companyName} 
+                              handleChange={handleChange}
+                            />
+                            <SelectInput 
+                              name={'title'}
+                              options={titleList}
+                              handleChange={handleChange}
+                            />
+                            <TextInput 
+                              name={'firstName'} 
+                              placeholder={'First Name'} 
+                              value={formData.firstName} 
+                              handleChange={handleChange}
+                            />
+                            <TextInput 
+                              name={'surnames'} 
+                              placeholder={'Second Name(s)'} 
+                              value={formData.surnames} 
+                              handleChange={handleChange}
+                            />
+                            <SelectInput 
+                              name={'gender'}
+                              options={genderList}
+                              handleChange={handleChange}
+                            />
+                            <TextInput 
+                              name={'email'} 
+                              type={'email'}
+                              placeholder={'example@pt.ie'} 
+                              value={formData.email} 
+                              handleChange={handleChange}
+                            />
+                            <TextInput 
+                              name={'phone'} 
+                              placeholder={'+353 123 4567'} 
+                              value={formData.phone} 
+                              handleChange={handleChange}
+                            />
+                            <SelectInput 
+                              name={'country'}
+                              options={countryList}
+                              handleChange={handleChange}
+                            />
                         </div>
-                        <div className='form-group'>
-                            <label htmlFor='inputAddress'>Address</label>
-                            <input type='text' className='form-control' id='inputAddress' placeholder='1234 O&#39;Connel Street'/>
-                        </div>
-                        <div className='form-group'>
-                            <input type='text' className='form-control' id='inputAddress2' placeholder='' />
-                        </div>
-                        <div className='form-row'>
-                            <div className='form-group col-md-6'>
-                                <label htmlFor='inputCity'>City</label>
-                                <input type='text' className='form-control' id='inputCity' />
-                            </div>
-                            <div className='form-group col-md-4'>
-                                <label htmlFor='inputCountry'>Country</label>
-                                <select id='inputCountry' className='form-control' defaultValue='Ireland'>
-                                    {countryList.map(country => (
-                                    <option key={country} value={country}>{country}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className='form-group col-md-2'>
-                                <label htmlFor='inputZip'>Post/Zip Code</label>
-                                <input type='text' className='form-control' id='inputZip' />
-                            </div>
-                        </div>
-                        <div className='form-group'>
-                            <div className='form-check'>
-                                <input className='form-check-input' type='checkbox' id='gridCheck' />
-                                <label className='form-check-label' htmlFor='gridCheck'>
-                                    Check me out
-                                </label>
-                            </div>
-                        </div>
-                        <button type='submit' className='btn btn-light mt-2'>Submit</button>
+                        <button type='submit' className='btn btn-light my-3'>Submit</button>
                     </form>
                 </Accordion.Collapse>
             </Card>
