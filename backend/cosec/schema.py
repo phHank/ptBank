@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 
 import graphene
 from graphene_django import DjangoObjectType
@@ -19,10 +20,14 @@ class CompanyType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    clients = graphene.List(ClientType, client_id=graphene.Int())
+    clients = graphene.List(
+        ClientType, 
+        client_id=graphene.Int(), 
+        search=graphene.String()
+    )
     companies = graphene.List(CompanyType, client_id=graphene.Int())
 
-    def resolve_clients(self, info, client_id=None, **kwargs):
+    def resolve_clients(self, info, client_id=None, search=None, **kwargs):
         user = info.context.user
         if user.is_anonymous:
             raise Exception('Not logged in!')
@@ -45,6 +50,14 @@ class Query(graphene.ObjectType):
             return client_profile
 
         if user.is_staff:
+            if search:
+                filter = (
+                    Q(company_name__icontains=search) |
+                    Q(first_name__icontains=search) |
+                    Q(surnames__icontains=search)
+                )
+                return ClientProfile.objects.filter(filter)
+
             return ClientProfile.objects.all()
 
     def resolve_companies(self, info, **kwargs):
@@ -70,27 +83,33 @@ class CreateClientProfile(graphene.Mutation):
         gender = graphene.String()
         company_name = graphene.String()
         phone = graphene.String()
-        email = graphene.String()
+        email = graphene.String(required=True)
+        country = graphene.String(required=True)
 
-    def mutate(self, info, first_name, surnames, title, gender, company_name, phone, email):
+    def mutate(self, info, 
+        first_name, surnames, title, 
+        gender, company_name, 
+        phone, email=None, country=None
+    ):
         user = info.context.user
         if user.is_anonymous:
             raise Exception('Not logged in!')
 
-        creator = get_user_model().objects.filter(pk=user.id).first()
-
         if not user.is_staff:
             raise Exception('Permission Denied!')
 
-        if (not first_name and not surnames) or not company_name:
-            raise Exception('No company or individual names provided')
+        creator = get_user_model().objects.filter(pk=user.id).first()
+
+        if not(first_name and surnames) and not company_name:
+            raise Exception('No company or individual names provided!')
 
         new_client = ClientProfile(
             first_name=first_name, surnames=surnames, 
             title=title, gender=gender, 
-            company_name=company_name, created_by=creator,
-            date_created=int(time.time()), updated_by=creator,
-            phone=phone, email=email, 
+            company_name=company_name, 
+            created_by=creator, date_created=int(time.time()), 
+            updated_by=creator, last_updated=int(time.time()),
+            phone=phone, email=email, country=country,
             )
         new_client.save()
 

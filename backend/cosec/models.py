@@ -1,30 +1,29 @@
 from django.db import models
 from django.conf import settings
 
-import time
-
 class ClientProfile(models.Model):
     first_name = models.CharField(max_length=200)
     surnames = models.CharField(max_length=200)
     title = models.CharField(max_length=50)
     gender = models.CharField(max_length=10)
     company_name = models.CharField(max_length=200)
-    phone = models.CharField(max_length=50)
-    email = models.EmailField()
+    phone = models.CharField(max_length=50, null=True)
+    email = models.EmailField(null=False)
+    country = models.CharField(max_length=200, null=False)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         null=True, 
         on_delete=models.SET_NULL, 
         related_name='client_created_by'
         )
-    date_created = models.IntegerField(null=False)
+    date_created = models.DateTimeField(auto_now_add=True, editable=False)
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         null=True, 
         on_delete=models.SET_NULL, 
         related_name='client_updated_by'
         )
-    last_updated = models.IntegerField(null=False, default=int(time.time()))
+    last_updated = models.DateTimeField(auto_now=True, null=False)
     deleted = models.BooleanField(default=False)
 
     def __str__(self):
@@ -42,14 +41,14 @@ class Company(models.Model):
         on_delete=models.SET_NULL, 
         related_name='company_created_by'
         )
-    date_created = models.IntegerField(null=False, default=int(time.time()))
+    date_created = models.DateTimeField(auto_now_add=True, editable=False)
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         null=True, 
         on_delete=models.SET_NULL, 
         related_name='company_updated_by'
         )
-    last_updated = models.IntegerField()
+    last_updated = models.DateTimeField(auto_now=True, null=False)
     deleted = models.BooleanField(default=False)
    
     def __str__(self):
