@@ -9,6 +9,7 @@ import Card from 'react-bootstrap/Card'
 import Spinner from 'react-bootstrap/Spinner'
 
 import { clientCoImg, clientImg } from '../../utils/constants'
+import { getDateTime } from '../../utils/helpers'
 
 const ClientProfile = () => {
     const history = useHistory()
@@ -67,7 +68,7 @@ const ClientProfile = () => {
                     </Card.Body>
                     <Card.Footer>
                         <small className="text-muted">
-                            Last updated {Date(clientData.lastUpdated).slice(4, 21)} by {clientData.updatedBy.username}.
+                            Last updated {getDateTime(new Date(clientData.lastUpdated))} by {clientData.updatedBy.username}.
                         </small>
                     </Card.Footer>
                 </Card>

@@ -18,10 +18,11 @@ mutation NewClientMutation (
     $firstName: String
     $surnames: String
     $companyName: String
-    $gender: String!
-    $title: String!
+    $gender: String
+    $title: String
     $email: String!
-    $phone:  String!
+    $phone:  String
+    $country: String!
 ){
     createClientProfile (
       firstName: $firstName
@@ -31,6 +32,7 @@ mutation NewClientMutation (
       title: $title
       email: $email
       phone: $phone
+      country: $country
     ) {
     clientProfile {
         id
@@ -38,12 +40,13 @@ mutation NewClientMutation (
         email
         firstName
         surnames
+        country
         createdBy {
-            username
+          username
         }
         dateCreated
         updatedBy {
-            username
+          username
         }
         lastUpdated
         }
@@ -74,7 +77,8 @@ const AddClientForm = () => {
             gender: formData.gender,
             title: formData.title,
             email: formData.email,
-            phone:  formData.phone
+            phone:  formData.phone,
+            country: formData.country
         },
         onCompleted: ({createClientProfile}) => {
             history.push({
@@ -98,7 +102,12 @@ const AddClientForm = () => {
         <Accordion defaultActiveKey='0' className='w-75 h-100' style={{opacity: 0.75}}>
             <Card bg='dark' text='light' className='d-flex'>
                 <Card.Header>
-                    <Accordion.Toggle as={Button} eventKey='1'>
+                    <Accordion.Toggle 
+                      as={Button} 
+                      eventKey='1'
+                      className='btn-block'
+                      onClick={() => setTimeout(() => window.scrollBy(0, 500), 250)} 
+                    >
                         Create New Client
                     </Accordion.Toggle>
                 </Card.Header>
@@ -109,7 +118,7 @@ const AddClientForm = () => {
                       onSubmit={e => {  
                         e.preventDefault()
                         if (!formData.companyName && !(formData.firstName && formData.surnames)) {
-                            setError({message: "You must provide a either a company or personal name!"})
+                            setError({message: "You must provide either a company or personal name!"})
                             return
                         }
                         createCLient()
@@ -127,36 +136,40 @@ const AddClientForm = () => {
                               options={titleList}
                               handleChange={handleChange}
                             />
-                            <TextInput 
-                              name={'firstName'} 
-                              placeholder={'First Name'} 
-                              value={formData.firstName} 
-                              handleChange={handleChange}
-                            />
-                            <TextInput 
-                              name={'surnames'} 
-                              placeholder={'Second Name(s)'} 
-                              value={formData.surnames} 
-                              handleChange={handleChange}
-                            />
+                            <div className='row'>
+                              <TextInput 
+                                name={'firstName'} 
+                                placeholder={'First Name'} 
+                                value={formData.firstName} 
+                                handleChange={handleChange}
+                              />
+                              <TextInput 
+                                name={'surnames'} 
+                                placeholder={'Second Name(s)'} 
+                                value={formData.surnames} 
+                                handleChange={handleChange}
+                              />
+                            </div>
                             <SelectInput 
                               name={'gender'}
                               options={genderList}
                               handleChange={handleChange}
                             />
-                            <TextInput 
-                              name={'email'} 
-                              type={'email'}
-                              placeholder={'example@pt.ie'} 
-                              value={formData.email} 
-                              handleChange={handleChange}
-                            />
-                            <TextInput 
-                              name={'phone'} 
-                              placeholder={'+353 123 4567'} 
-                              value={formData.phone} 
-                              handleChange={handleChange}
-                            />
+                            <div className='row'>
+                              <TextInput 
+                                name={'email'} 
+                                type={'email'}
+                                placeholder={'example@email.ie'} 
+                                value={formData.email} 
+                                handleChange={handleChange}
+                              />
+                              <TextInput 
+                                name={'phone'} 
+                                placeholder={'+353 123 4567'} 
+                                value={formData.phone} 
+                                handleChange={handleChange}
+                              />
+                            </div>
                             <SelectInput 
                               name={'country'}
                               options={countryList}
