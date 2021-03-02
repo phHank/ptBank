@@ -6,7 +6,7 @@ class ClientProfile(models.Model):
     surnames = models.CharField(max_length=200)
     title = models.CharField(max_length=50)
     gender = models.CharField(max_length=10)
-    company_name = models.CharField(max_length=200)
+    company_name = models.CharField(max_length=200, null=False, default='Private Individual')
     phone = models.CharField(max_length=50, null=True)
     email = models.EmailField(null=False)
     country = models.CharField(max_length=200, null=False)
@@ -27,7 +27,7 @@ class ClientProfile(models.Model):
     deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.first_name} {self.surnames}' if self.first_name else self.company
+        return self.company_name if self.company_name else f'{self.first_name} {self.surnames}' 
 
 
 class Company(models.Model):

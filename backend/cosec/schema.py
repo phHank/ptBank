@@ -22,12 +22,15 @@ class CompanyType(DjangoObjectType):
 class Query(graphene.ObjectType):
     clients = graphene.List(
         ClientType, 
-        client_id=graphene.Int(), 
-        search=graphene.String()
+        client_id = graphene.Int(), 
+        search = graphene.String(),
+        first = graphene.Int(),
+        skip = graphene.Int(),
+        order_by = graphene.String()
     )
     companies = graphene.List(CompanyType, client_id=graphene.Int())
 
-    def resolve_clients(self, info, client_id=None, search=None, **kwargs):
+    def resolve_clients(self, info, client_id=None, search=None, first=None, skip=None, order_by='company_name', **kwargs):
         user = info.context.user
         if user.is_anonymous:
             raise Exception('Not logged in!')
@@ -50,15 +53,25 @@ class Query(graphene.ObjectType):
             return client_profile
 
         if user.is_staff:
+            query_set = ClientProfile.objects.filter(deleted=False).order_by(f'{order_by}').all()
+
             if search:
                 filter = (
                     Q(company_name__icontains=search) |
                     Q(first_name__icontains=search) |
                     Q(surnames__icontains=search)
                 )
-                return ClientProfile.objects.filter(filter)
+                query_set = query_set.filter(filter)
 
-            return ClientProfile.objects.all()
+            if skip:
+                query_set = query_set[skip:]
+
+            if first:
+                query_set = query_set[:first]
+
+            return query_set
+
+
 
     def resolve_companies(self, info, **kwargs):
         user = info.context.user
@@ -88,8 +101,8 @@ class CreateClientProfile(graphene.Mutation):
 
     def mutate(self, info, 
         first_name, surnames, title, 
-        gender, company_name, 
-        phone, email=None, country=None
+        gender,  phone,
+        company_name, email=None, country=None
     ):
         user = info.context.user
         if user.is_anonymous:
@@ -106,11 +119,10 @@ class CreateClientProfile(graphene.Mutation):
         new_client = ClientProfile(
             first_name=first_name, surnames=surnames, 
             title=title, gender=gender, 
-            company_name=company_name, 
-            created_by=creator, date_created=int(time.time()), 
-            updated_by=creator, last_updated=int(time.time()),
+            company_name=company_name if company_name else 'Private Individual', 
+            created_by=creator, updated_by=creator,
             phone=phone, email=email, country=country,
-            )
+        )
         new_client.save()
 
         return CreateClientProfile(client_profile=new_client)
