@@ -52,7 +52,7 @@ const Login = ({setTokenInfo}) => {
           >
             <input
               id="username" 
-              className='lf--input w-100' 
+              className='lf--input w-100 bg-dark' 
               placeholder='Username'
               type='text' 
               required="required"
@@ -67,7 +67,7 @@ const Login = ({setTokenInfo}) => {
             />
             <input
               id="password" 
-              className='lf--input w-100'
+              className='lf--input w-100 bg-dark'
               type='password' 
               placeholder='Password'
               required="required"

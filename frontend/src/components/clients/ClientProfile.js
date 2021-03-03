@@ -46,12 +46,12 @@ const ClientProfile = () => {
             {requestError 
               ? (<p className='error-message'>Error getting client data: {requestError}</p>)
               : (
-                <Card bg='dark' text='light' className='m-5' style={{opacity: 0.75}}>
+                <Card bg='dark' text='light' className='m-5'>
                     <div className='w-100 d-flex justify-content-center' >
                         <Card.Img 
-                        style={{maxWidth: 300}}
+                        style={{maxWidth: '20rem'}}
                         variant='top' 
-                        src={clientData.companyName ? clientCoImg : clientImg} 
+                        src={clientData.companyName === 'Private Individual' ? clientImg : clientCoImg } 
                         />
                     </div>
                     <Card.Body>

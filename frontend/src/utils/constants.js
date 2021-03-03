@@ -1,3 +1,5 @@
+export const resultsPerPage = 5
+
 export const linkStyle = {
     color: '#FFF',
     textDecoration: 'none',
@@ -257,10 +259,10 @@ export const countryList = [
 	"Tuvalu",
 	"Uganda",
 	"Ukraine",
+	"United Kingdom",
+	"United States of America",
 	"United Arab Emirates (the)",
-	"United Kingdom of Great Britain and Northern Ireland (the)",
 	"United States Minor Outlying Islands (the)",
-	"United States of America (the)",
 	"Uruguay",
 	"Uzbekistan",
 	"Vanuatu",
