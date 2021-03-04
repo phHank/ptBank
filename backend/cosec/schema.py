@@ -29,11 +29,15 @@ class Query(graphene.ObjectType):
         order_by = graphene.String()
     )
     companies = graphene.List(CompanyType, client_id=graphene.Int())
+    count = graphene.Int(target=graphene.String())
 
     def resolve_clients(self, info, client_id=None, search=None, first=None, skip=None, order_by='company_name', **kwargs):
         user = info.context.user
         if user.is_anonymous:
             raise Exception('Not logged in!')
+
+        if not user.is_active:
+            raise Exception('Permission Denied!')
 
         if client_id:
             if not user.is_staff:
@@ -71,17 +75,27 @@ class Query(graphene.ObjectType):
 
             return query_set
 
-
-
     def resolve_companies(self, info, **kwargs):
         user = info.context.user
         if user.is_anonymous:
             raise Exception('Not logged in!')
 
+        if not user.is_active:
+            raise Exception('Permission Denied!')
+
         if user.is_staff:
             return Company.objects.all()
 
         return Company.objects.filter(client_id=kwargs['client_id']).all()
+
+    def resolve_count(self, info, target='clients', **kwargs):
+        user = info.context.user
+
+        if user.is_staff and user.is_active:
+            if target == 'clients':
+                return ClientProfile.objects.filter(deleted=False).count()
+            elif target == 'companies':
+                return Company.objects.filter(deleted=False).count()
 
 
 
@@ -108,10 +122,17 @@ class CreateClientProfile(graphene.Mutation):
         if user.is_anonymous:
             raise Exception('Not logged in!')
 
+        if not user.is_active:
+            raise Exception('Permission Denied!')
+
         if not user.is_staff:
             raise Exception('Permission Denied!')
 
         creator = get_user_model().objects.filter(pk=user.id).first()
+
+        # TODO: change to g2
+        if not Profile.objects.filter(user=creator).first().g3:
+            raise Exception('Permission denied, not G2!')
 
         if not(first_name and surnames) and not company_name:
             raise Exception('No company or individual names provided!')
@@ -129,6 +150,90 @@ class CreateClientProfile(graphene.Mutation):
 
 
 
+class UpdateClientProfile(graphene.Mutation):
+    client_profile = graphene.Field(ClientType)
+
+    class Arguments:
+        client_profile_id = graphene.Int(required=True)
+        first_name = graphene.String(required=True)
+        surnames = graphene.String(required=True)
+        title = graphene.String(required=True)
+        gender = graphene.String(required=True)
+        company_name = graphene.String(required=True)
+        phone = graphene.String(required=True)
+        email = graphene.String(required=True)
+        country = graphene.String(required=True)
+    
+    def mutate(
+        self, info, client_profile_id, first_name,
+        surnames, title, gender, company_name,
+        phone, email, country
+    ):
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('Not logged in!')
+
+        if not user.is_staff and not user.is_active:
+            raise Exception('Permission Denied!')
+
+        editor = get_user_model().objects.filter(pk=user.id).first()
+
+        # TODO: change to g2
+        if not Profile.objects.filter(user=editor).first().g3:
+            raise Exception('Permission denied, not G2!')
+
+        client_profile = ClientProfile.objects.filter(pk=client_profile_id).first()
+
+        if not client_profile:
+            raise Exception('Client Profile not found!')
+
+        client_profile.first_name = first_name
+        client_profile.surnames = surnames
+        client_profile.title = title
+        client_profile.gender = gender
+        client_profile.company_name = company_name
+        client_profile.phone = phone
+        client_profile.email = email
+        client_profile.country = country
+        client_profile.updated_by = editor
+
+        client_profile.save()
+
+        return UpdateClientProfile(client_profile=client_profile)
+
+
+class DeleteClientProfile(graphene.Mutation):
+    client_profile = graphene.Field(ClientType)
+
+    class Arguments:
+        client_profile_id = graphene.Int(required=True)
+
+    def mutate(self, info, client_profile_id):
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('Not logged in!')
+
+        if not user.is_staff and not user.is_active:
+            raise Exception('Permission Denied!')
+
+        deleter = get_user_model().objects.filter(pk=user.id).first()
+
+        # TODO: change to g2
+        if not Profile.objects.filter(user=deleter).first().g3:
+            raise Exception('Permission denied, not G2!')
+
+        client_profile = ClientProfile.objects.filter(pk=client_profile_id).first()
+
+        if not client_profile:
+            raise Exception('Client Profile not found!')
+
+        client_profile.deleted = True
+        client_profile.updated_by = deleter
+        client_profile.save()
+
+        return DeleteClientProfile(client_profile=client_profile)
+
+
 class CreateCompany(graphene.Mutation):
     company = graphene.Field(CompanyType)
 
@@ -143,7 +248,6 @@ class CreateCompany(graphene.Mutation):
         if user.is_anonymous:
             raise Exception('Not logged in!')
 
-        creator = get_user_model().objects.filter(pk=user.id).first()
 
         if not user.is_staff:
             raise Exception('Permission Denied!')
@@ -163,3 +267,5 @@ class CreateCompany(graphene.Mutation):
 class Mutation (graphene.ObjectType):
     create_company = CreateCompany.Field()
     create_client_profile = CreateClientProfile.Field()
+    update_client_profile = UpdateClientProfile.Field()
+    delete_client_profile = DeleteClientProfile.Field()
