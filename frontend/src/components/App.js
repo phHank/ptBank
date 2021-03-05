@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import useInterval from 'use-interval'
 
-import { 
-    Switch, 
-    Route
-} from 'react-router-dom'
+import { Switch, Route } from 'react-router-dom'
 
 import { useMutation, useLazyQuery, gql } from '@apollo/client'
 
 import Nav from './Nav'
 import Login from './Login'
-import NotFound from './NotFound'
+import Loading from './Loading'
 import Dashboard from './Dashboard'
 import ClientList from './clients/ClientList'
 import ClientProfile from './clients/ClientProfile'
 import CompanyList from './companies/CompanyList'
 import BankDashboard from './banking/BankDashboard'
+import NotFound from './NotFound'
 import Footer from './Footer'
+
 
 const REFRESH_TOKEN_MUTATION = gql`
 mutation RefreshTokenMutation(
@@ -55,7 +54,7 @@ export let AUTH_TOKEN
 const App = () => {
     const [jwtTokenInfo, setJwtTokenInfo] = useState('')
 
-    const [getProfileData, {data, error}] = useLazyQuery(PROFILE_DATA_QUERY)
+    const [getProfileData, {data, error, loading}] = useLazyQuery(PROFILE_DATA_QUERY)
 
     useEffect(() => {
         AUTH_TOKEN = jwtTokenInfo.token
@@ -82,6 +81,8 @@ const App = () => {
         return <Login setTokenInfo={setJwtTokenInfo} />
     }
     
+    if (loading) return <Loading />
+
     return (
         <>
             <Nav profileData={data?.userProfile[0]}/>
@@ -99,7 +100,12 @@ const App = () => {
                   render={() => <Dashboard profileData={data?.userProfile[0]} />}
                 />
                 <Route exact path='/clients' component={ClientList} />
-                <Route exact path='/clients/:id' component={ClientProfile} />
+                <Route 
+                  exact
+				  path='/clients/:id'
+                  // TODO: change to g3 to g2
+				  render={() => <ClientProfile g3={data?.userProfile[0].g3} />} 
+				/>
                 <Route exact path='/companies' component={CompanyList} />
                 <Route exact path='/banking' component={BankDashboard} />
                 <Route component={NotFound} />

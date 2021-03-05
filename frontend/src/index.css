@@ -54,6 +54,13 @@ body {
   width: 100%;
 }
 
+.success-message {
+  color: rgb(0, 99, 5);
+  background-color: rgba(108, 218, 57, 0.623);
+  text-align: center;
+  width: 100%;
+}
+
 /* .login img {
   padding-left: 25%;
   max-width: 100%;

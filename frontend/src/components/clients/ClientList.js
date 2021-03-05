@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
 import { useHistory } from 'react-router-dom'
 
@@ -6,7 +6,6 @@ import { useQuery, gql } from '@apollo/client'
 
 import { resultsPerPage } from '../../utils/constants'
 
-import Jumbotron from 'react-bootstrap/Jumbotron'
 import Table from 'react-bootstrap/Table'
 
 import Loading from '../Loading'
@@ -35,6 +34,10 @@ query GetClientsQuery (
       surnames
       companyName
       country
+      title
+      gender
+      email
+      phone
       createdBy {
         id
         username
@@ -53,15 +56,11 @@ query GetClientsQuery (
 const ClientList = () => {
   const [pageNo, setPageNo] = useState(1)
   const history = useHistory()
-  const {location: {searchData}} = history
+  const {location: {searchData, deletedClient}} = history
 
   let {data, loading, error, refetch} = useQuery(GET_CLIENTS_QUERY, {
     variables: {first: resultsPerPage}
   })
-
-  useEffect(() => {
-    if (!searchData) refetch({first: resultsPerPage})
-  }, [])
 
   if (searchData) {
     data = searchData
@@ -80,10 +79,10 @@ const ClientList = () => {
 
   return (
       <div className='container'>
+          {deletedClient && <p className='success-message'>{deletedClient} has been deleted</p>}
           {error && <p className='error-message'>Error getting client data: {error.message}</p>}
-          <Jumbotron 
-            className='d-flex flex-column align-items-center bg-light mt-3 p-3 border border-dark border-5 rounded'
-          >
+          <div className='d-flex flex-column align-items-center mt-3 p-3'>
+            <h3 className='bg-dark text-light rounded p-2'>Clients</h3>
             <Table striped size hover bordered variant='dark'>
                 <thead>
                     <tr>
@@ -116,7 +115,7 @@ const ClientList = () => {
 								/>
 							</div>
 						)}
-          </Jumbotron>
+          </div>
           <div className='container d-flex justify-content-center my-3'>
             <AddClientForm />
           </div>

@@ -1,6 +1,6 @@
 import React from 'react'
 
-const SelectInput = ({name, options, handleChange}) => (
+const SelectInput = ({name, options, handleChange, defaultVal, req}) => (
     <div className='form-group col-md-4'>
         <label className='text-capitalize' htmlFor={name}>
             {name.replace(/([a-z])([A-Z])/g, '$1 $2')}
@@ -9,7 +9,8 @@ const SelectInput = ({name, options, handleChange}) => (
           onChange={e => handleChange(e, name)}
           id={name} 
           className='form-control'
-          defaultValue='disabled'
+          defaultValue={defaultVal ? defaultVal : 'disabled'}
+          required={req}
         >
             <option value='disabled' disabled>-</option>
             {options.map(option => 

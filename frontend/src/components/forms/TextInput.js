@@ -1,6 +1,6 @@
 import React from 'react'
 
-const TextInput = ({name, type, placeholder, value, handleChange}) => (
+const TextInput = ({name, type, placeholder, value, handleChange, req}) => (
     <div className='form-group col-md-6'>
         <label className='text-capitalize' htmlFor={name}>
             {name.replace(/([a-z])([A-Z])/g, '$1 $2')}
@@ -12,6 +12,7 @@ const TextInput = ({name, type, placeholder, value, handleChange}) => (
           placeholder={placeholder} 
           value={value}
           onChange={e => handleChange(e, name)}
+          required={req}
           />
     </div>
 ) 

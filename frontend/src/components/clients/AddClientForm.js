@@ -4,7 +4,7 @@ import { useHistory }from 'react-router-dom'
 
 import { useMutation, gql } from '@apollo/client'
 
-import { genderList, titleList, countryList } from '../../utils/constants'
+import { genderList, titleList, countryList, resultsPerPage } from '../../utils/constants'
 
 import Accordion from 'react-bootstrap/Accordion'
 import Button from 'react-bootstrap/Button'
@@ -12,6 +12,7 @@ import Card from 'react-bootstrap/Card'
 
 import TextInput from '../forms/TextInput'
 import SelectInput from '../forms/SelectInput' 
+import { GET_CLIENTS_QUERY } from './ClientList'
 
 export const NEW_CLIENT_MUTATION = gql`
 mutation NewClientMutation (
@@ -38,9 +39,12 @@ mutation NewClientMutation (
         id
         companyName
         email
+        phone
         firstName
         surnames
         country
+        gender
+        title
         createdBy {
           username
         }
@@ -79,11 +83,30 @@ const AddClientForm = () => {
             email: formData.email,
             phone:  formData.phone,
             country: formData.country
+        }, 
+        update: (cache, {data: {createClientProfile}}) => {
+          const {clientProfile} = createClientProfile
+          console.log(clientProfile)
+
+          const { clients } = cache.readQuery({
+            query: GET_CLIENTS_QUERY,
+            variables: {first: resultsPerPage}
+          })
+
+          console.log(clients)
+
+          cache.writeQuery({
+            query: GET_CLIENTS_QUERY,
+            variables: {first: resultsPerPage},
+            data: {
+              clients: [clientProfile, ...clients]
+            }
+          })
         },
         onCompleted: ({createClientProfile}) => {
             history.push({
-                pathname: `/clients/${createClientProfile.clientProfile.id}`,
-                clientData: createClientProfile.clientProfile
+              pathname: `/clients/${createClientProfile.clientProfile.id}`,
+              clientData: createClientProfile.clientProfile
             })
         },
         onError: error => {
@@ -93,8 +116,8 @@ const AddClientForm = () => {
 
     const handleChange = (event, name) => {
         setFormData({
-            ...formData,
-            [name]: event.target.value
+          ...formData,
+          [name]: event.target.value
         })
     }
 
@@ -135,6 +158,7 @@ const AddClientForm = () => {
                               name={'title'}
                               options={titleList}
                               handleChange={handleChange}
+                              req={true}
                             />
                             <div className='row'>
                               <TextInput 
@@ -154,6 +178,7 @@ const AddClientForm = () => {
                               name={'gender'}
                               options={genderList}
                               handleChange={handleChange}
+                              req={true}
                             />
                             <div className='row'>
                               <TextInput 
@@ -162,18 +187,21 @@ const AddClientForm = () => {
                                 placeholder={'example@email.ie'} 
                                 value={formData.email} 
                                 handleChange={handleChange}
+                                req={true}
                               />
                               <TextInput 
                                 name={'phone'} 
                                 placeholder={'+353 123 4567'} 
                                 value={formData.phone} 
                                 handleChange={handleChange}
+                                req={true}
                               />
                             </div>
                             <SelectInput 
                               name={'country'}
                               options={countryList}
                               handleChange={handleChange}
+                              req={true}
                             />
                         </div>
                         <button type='submit' className='btn btn-light my-3'>Submit</button>
