@@ -1,6 +1,13 @@
 from django.db import models
 from django.conf import settings
 
+import os
+
+def get_client_upload_path(instance, filename):
+    return os.path.join(
+        f"clients/{instance.id}/", filename
+    )
+
 class ClientProfile(models.Model):
     first_name = models.CharField(max_length=200)
     surnames = models.CharField(max_length=200)
@@ -10,6 +17,8 @@ class ClientProfile(models.Model):
     phone = models.CharField(max_length=50, null=True)
     email = models.EmailField(null=False)
     country = models.CharField(max_length=200, null=False)
+    incorp_cert = models.FileField(upload_to=get_client_upload_path, null=True)
+    upload_date = models.DateTimeField(null=True, editable=False)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         null=True, 

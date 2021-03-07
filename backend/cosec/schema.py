@@ -1,13 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+from django.utils import timezone
 
 import graphene
 from graphene_django import DjangoObjectType
 
+from graphene_file_upload.scalars import Upload
+
 from .models import ClientProfile, Company
 from users.models import UserProfile as Profile
-
-import time
 
 class ClientType(DjangoObjectType):
     class Meta:
@@ -149,6 +150,33 @@ class CreateClientProfile(graphene.Mutation):
         return CreateClientProfile(client_profile=new_client)
 
 
+class UploadMutation(graphene.Mutation):
+    client = graphene.Field(ClientType)
+    success = graphene.Boolean(default_value=False)
+
+    class Arguments:
+        client_id = graphene.Int(required=True)
+        file = Upload(required=True)
+
+    def mutate(self, info, file, client_id, **kwargs):
+        user = info.context.user
+        if user.is_anonymous:
+            raise Exception('Not logged in!')
+
+        if not user.is_active:
+            raise Exception('Permission Denied!')
+
+        if not user.is_staff:
+            raise Exception('Permission Denied!')
+        
+        client = ClientProfile.objects.filter(pk=client_id).first()
+
+        client.incorp_cert = file
+        client.upload_date = timezone.now()
+        client.save()
+
+        return UploadMutation(success = True)
+
 
 class UpdateClientProfile(graphene.Mutation):
     client_profile = graphene.Field(ClientType)
@@ -269,3 +297,4 @@ class Mutation (graphene.ObjectType):
     create_client_profile = CreateClientProfile.Field()
     update_client_profile = UpdateClientProfile.Field()
     delete_client_profile = DeleteClientProfile.Field()
+    upload = UploadMutation.Field()
