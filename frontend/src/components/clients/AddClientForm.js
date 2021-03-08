@@ -10,8 +10,10 @@ import Accordion from 'react-bootstrap/Accordion'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 
+import Loading from '../Loading'
 import TextInput from '../forms/TextInput'
 import SelectInput from '../forms/SelectInput' 
+import FileInput from '../forms/FileInput'
 import { GET_CLIENTS_QUERY } from './ClientList'
 
 export const NEW_CLIENT_MUTATION = gql`
@@ -45,6 +47,8 @@ mutation NewClientMutation (
         country
         gender
         title
+        incorpCert
+        uploadDate
         createdBy {
           username
         }
@@ -58,6 +62,22 @@ mutation NewClientMutation (
   }
 `
 
+export const UPLOAD_DOC_MUTATION = gql`
+mutation UploadDocMutation (
+  $clientId: Int!
+  $file: Upload!
+) {
+  upload(clientId: $clientId, file: $file) {
+    client {
+      id
+      incorpCert
+      uploadDate
+    }
+    success
+  }
+}
+`
+
 const AddClientForm = () => {
     const [formData, setFormData] = useState({
         firstName: '',
@@ -69,9 +89,16 @@ const AddClientForm = () => {
         phone: '',
         country: ''
     })
+    const [formFile, setFormFile] = useState({})
     const [error, setError] = useState(null)
 
     const history = useHistory()
+
+    const [uploadFile, {loading}] = useMutation(UPLOAD_DOC_MUTATION, {
+      onError: error => {
+        setError(error)
+      }
+    })
 
     const [createCLient] = useMutation(NEW_CLIENT_MUTATION, {
         variables: {
@@ -86,14 +113,11 @@ const AddClientForm = () => {
         }, 
         update: (cache, {data: {createClientProfile}}) => {
           const {clientProfile} = createClientProfile
-          console.log(clientProfile)
 
           const { clients } = cache.readQuery({
             query: GET_CLIENTS_QUERY,
             variables: {first: resultsPerPage}
           })
-
-          console.log(clients)
 
           cache.writeQuery({
             query: GET_CLIENTS_QUERY,
@@ -104,10 +128,11 @@ const AddClientForm = () => {
           })
         },
         onCompleted: ({createClientProfile}) => {
-            history.push({
-              pathname: `/clients/${createClientProfile.clientProfile.id}`,
-              clientData: createClientProfile.clientProfile
-            })
+          uploadFile({variables: {
+            clientId: createClientProfile.clientProfile.id,
+            file: formFile
+          }})
+          history.push(`/clients/${createClientProfile.clientProfile.id}`)
         },
         onError: error => {
             setError(error)
@@ -120,6 +145,8 @@ const AddClientForm = () => {
           [name]: event.target.value
         })
     }
+
+    if (loading) return <Loading />
 
     return (
         <Accordion defaultActiveKey='0' className='w-75 h-100' style={{opacity: 0.75}}>
@@ -148,61 +175,62 @@ const AddClientForm = () => {
                       }}
                     >
                         <div className='form-row'>
+                          <TextInput 
+                            name={'companyName'}
+                            placeholder={'Company Ltd'} 
+                            value={formData.companyName} 
+                            handleChange={handleChange}
+                          />
+                          <SelectInput 
+                            name={'title'}
+                            options={titleList}
+                            handleChange={handleChange}
+                            req={true}
+                          />
+                          <div className='row'>
                             <TextInput 
-                              name={'companyName'}
-                              placeholder={'Company Ltd'} 
-                              value={formData.companyName} 
+                              name={'firstName'} 
+                              placeholder={'First Name'} 
+                              value={formData.firstName} 
                               handleChange={handleChange}
                             />
-                            <SelectInput 
-                              name={'title'}
-                              options={titleList}
+                            <TextInput 
+                              name={'surnames'} 
+                              placeholder={'Second Name(s)'} 
+                              value={formData.surnames} 
                               handleChange={handleChange}
-                              req={true}
                             />
-                            <div className='row'>
-                              <TextInput 
-                                name={'firstName'} 
-                                placeholder={'First Name'} 
-                                value={formData.firstName} 
-                                handleChange={handleChange}
-                              />
-                              <TextInput 
-                                name={'surnames'} 
-                                placeholder={'Second Name(s)'} 
-                                value={formData.surnames} 
-                                handleChange={handleChange}
-                              />
-                            </div>
-                            <SelectInput 
-                              name={'gender'}
-                              options={genderList}
+                          </div>
+                          <SelectInput 
+                            name={'gender'}
+                            options={genderList}
+                            handleChange={handleChange}
+                            req={true}
+                          />
+                          <div className='row'>
+                            <TextInput 
+                              name={'email'} 
+                              type={'email'}
+                              placeholder={'example@email.ie'} 
+                              value={formData.email} 
                               handleChange={handleChange}
                               req={true}
                             />
-                            <div className='row'>
-                              <TextInput 
-                                name={'email'} 
-                                type={'email'}
-                                placeholder={'example@email.ie'} 
-                                value={formData.email} 
-                                handleChange={handleChange}
-                                req={true}
-                              />
-                              <TextInput 
-                                name={'phone'} 
-                                placeholder={'+353 123 4567'} 
-                                value={formData.phone} 
-                                handleChange={handleChange}
-                                req={true}
-                              />
-                            </div>
-                            <SelectInput 
-                              name={'country'}
-                              options={countryList}
+                            <TextInput 
+                              name={'phone'} 
+                              placeholder={'+353 123 4567'} 
+                              value={formData.phone} 
                               handleChange={handleChange}
                               req={true}
                             />
+                          </div>
+                          <SelectInput 
+                            name={'country'}
+                            options={countryList}
+                            handleChange={handleChange}
+                            req={true}
+                          />
+                          <FileInput setFile={setFormFile} />
                         </div>
                         <button type='submit' className='btn btn-light my-3'>Submit</button>
                     </form>

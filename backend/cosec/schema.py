@@ -175,7 +175,7 @@ class UploadMutation(graphene.Mutation):
         client.upload_date = timezone.now()
         client.save()
 
-        return UploadMutation(success = True)
+        return UploadMutation(client=client, success = True)
 
 
 class UpdateClientProfile(graphene.Mutation):

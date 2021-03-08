@@ -177,8 +177,8 @@ const UpdateClientForm = ({clientData, setEdit}) => {
                     defaultVal={formData.country}
                 />
                 <div className='d-flex w-100 justify-content-end'>
-                    <button className='btn btn-sm btn-light mx-1' onClick={() => setEdit(false)}>Cancel</button>
                     <button type='submit' className='btn btn-sm btn-primary'>Submit</button>
+                    <button className='btn btn-sm btn-light mx-1' onClick={() => setEdit(false)}>Cancel</button>
                 </div>
             </form>
         </Card>

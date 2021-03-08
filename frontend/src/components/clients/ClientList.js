@@ -38,6 +38,8 @@ query GetClientsQuery (
       gender
       email
       phone
+      incorpCert
+      uploadDate
       createdBy {
         id
         username
@@ -50,6 +52,10 @@ query GetClientsQuery (
       lastUpdated
     }
 		count (target: $target)
+    companies {
+      id
+      coName
+    }
   }
 `
 
