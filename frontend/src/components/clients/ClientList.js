@@ -45,7 +45,7 @@ query GetClientsQuery (
         username
         }
       dateCreated
-        updatedBy {
+      updatedBy {
           id
           username
       }
@@ -92,14 +92,14 @@ const ClientList = () => {
             <Table striped size hover bordered variant='dark'>
                 <thead>
                     <tr>
-                        <th onClick={() => refetch({orderBy: 'company_name'})}>Company Name</th>
-                        <th onClick={() => refetch({orderBy: 'first_name'})}>First Name</th>
-                        <th onClick={() => refetch({orderBy: 'surnames'})}>Surname(s)</th>
-                        <th onClick={() => refetch({orderBy: 'updated_by'})}>Updated By</th>
+                      <th onClick={() => refetch({orderBy: 'company_name'})}>Company Name</th>
+                      <th onClick={() => refetch({orderBy: 'first_name'})}>First Name</th>
+                      <th onClick={() => refetch({orderBy: 'surnames'})}>Surname(s)</th>
+                      <th onClick={() => refetch({orderBy: 'updated_by'})}>Updated By</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {data?.clients.map(client => <ClientRow key={client.id} clientData={client} />)}
+                  {data?.clients.map(client => <ClientRow key={client.id} clientData={client} />)}
                 </tbody>
                 {searchData && (
                   <tfoot >

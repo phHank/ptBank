@@ -16,7 +16,7 @@ const Navigation = ({profileData}) => (
         bg='dark' 
         variant="dark" 
     >
-        <NavLink to='/' style={linkStyle}>Hi {profileData?.user?.firstName}</NavLink>
+        <NavLink to='/' style={linkStyle}>Hi {profileData?.user.firstName}</NavLink>
         <div className='d-flex justify-content-center align-items-center'>
             <h1>
                 <Navbar.Brand href='https://www.pearse-trust.ie/' target='_blank'>
@@ -25,7 +25,7 @@ const Navigation = ({profileData}) => (
             </h1>
             <Nav>
                 <NavLink to='/' style={linkStyle}>| Home</NavLink>
-                {profileData?.user?.isStaff && <NavLink to='/clients' style={linkStyle}>| Clients</NavLink>}
+                <NavLink to='/clients' style={linkStyle}>| Clients</NavLink>
                 <NavLink to='/companies' style={linkStyle}>| Companies</NavLink>
                 {profileData?.g1 && <NavLink to='/legal' style={linkStyle}>| Legal</NavLink>}
                 {profileData?.g2 && <NavLink to='/cosec' style={linkStyle}>| Co-Sec</NavLink>}

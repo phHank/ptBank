@@ -100,7 +100,7 @@ const AddClientForm = () => {
       }
     })
 
-    const [createCLient] = useMutation(NEW_CLIENT_MUTATION, {
+    const [createClient] = useMutation(NEW_CLIENT_MUTATION, {
         variables: {
             firstName: formData.firstName,
             surnames: formData.surnames,
@@ -149,7 +149,7 @@ const AddClientForm = () => {
     if (loading) return <Loading />
 
     return (
-        <Accordion defaultActiveKey='0' className='w-75 h-100' style={{opacity: 0.75}}>
+        <Accordion defaultActiveKey='0' className='w-75 h-100' style={{opacity: 0.85}}>
             <Card bg='dark' text='light' className='d-flex'>
                 <Card.Header>
                     <Accordion.Toggle 
@@ -171,7 +171,7 @@ const AddClientForm = () => {
                             setError({message: "You must provide either a company or personal name!"})
                             return
                         }
-                        createCLient()
+                        createClient()
                       }}
                     >
                         <div className='form-row'>
@@ -230,7 +230,10 @@ const AddClientForm = () => {
                             handleChange={handleChange}
                             req={true}
                           />
-                          <FileInput setFile={setFormFile} />
+                          <div className='my-2'>
+                            <label htmlFor='incorpDoc' className='mr-2'>Certificate of Incorp: </label>
+                            <FileInput id='incorpDoc' setFile={setFormFile} />
+                          </div>
                         </div>
                         <button type='submit' className='btn btn-light my-3'>Submit</button>
                     </form>

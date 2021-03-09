@@ -44,6 +44,11 @@ mutation UpdateClientMutation (
       phone
       email
       country
+      updatedBy {
+        id
+        username
+        }
+      lastUpdated
     }
   }
 }
@@ -74,9 +79,7 @@ const UpdateClientForm = ({clientData, setEdit}) => {
             phone: formData.phone,
             country: formData.country
         },
-        update: (cache, {data: {updateClientProfile}}) => {
-            const {clientProfile} = updateClientProfile
-            
+        update: (cache, {data: {updateClientProfile: {clientProfile}}}) => {
             const {clients} = cache.readQuery({
                 query: GET_CLIENTS_QUERY,
                 variables: {

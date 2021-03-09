@@ -6,7 +6,6 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import {
     ApolloProvider,
     ApolloClient,
-    createHttpLink,
     InMemoryCache
 } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
@@ -14,10 +13,6 @@ import { setContext } from '@apollo/client/link/context'
 import { createUploadLink } from 'apollo-upload-client'
 
 import App, { AUTH_TOKEN } from './components/App'
-
-// const httpLink = createHttpLink({
-//     uri: 'http://localhost:8080/graphql/'
-// })
 
 const link = createUploadLink({
     uri: 'http://localhost:8080/graphql/',
