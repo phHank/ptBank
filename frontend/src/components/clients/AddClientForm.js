@@ -62,12 +62,12 @@ mutation NewClientMutation (
   }
 `
 
-export const UPLOAD_DOC_MUTATION = gql`
-mutation UploadDocMutation (
+export const CLIENT_UPLOAD_DOC_MUTATION = gql`
+mutation ClientUploadDocMutation (
   $clientId: Int!
   $file: Upload!
 ) {
-  upload(clientId: $clientId, file: $file) {
+  clientUpload(clientId: $clientId, file: $file) {
     client {
       id
       incorpCert
@@ -94,7 +94,7 @@ const AddClientForm = () => {
 
     const history = useHistory()
 
-    const [uploadFile, {loading}] = useMutation(UPLOAD_DOC_MUTATION, {
+    const [uploadFile, {loading}] = useMutation(CLIENT_UPLOAD_DOC_MUTATION, {
       onError: error => {
         setError(error)
       }

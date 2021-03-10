@@ -81,6 +81,7 @@ WSGI_APPLICATION = 'ptbanking.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+# TODO: Stand up production db
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -151,6 +152,7 @@ AUTHENTICATION_BACKENDS = [
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3002',
+    # TODO: remove appollo graphql in production
     'https://studio.apollographql.com'
 ]
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useMutation } from '@apollo/client'
 
-import { UPLOAD_DOC_MUTATION } from './AddClientForm'
+import { CLIENT_UPLOAD_DOC_MUTATION } from './AddClientForm'
 import { GET_CLIENTS_QUERY } from './ClientList'
 
 import Loading from '../Loading'
@@ -15,8 +15,8 @@ const ClientDoc = ({clientId, incorpCert}) => {
     const [showUpload, setShowUpload] = useState(false)
     const [error, setError] = useState('')
 
-    const [uploadFile, {loading}] = useMutation(UPLOAD_DOC_MUTATION, {
-        update: (cache, {data: {upload: {client: {incorpCert}}}}) => {
+    const [uploadFile, {loading}] = useMutation(CLIENT_UPLOAD_DOC_MUTATION, {
+        update: (cache, {data: {clientUpload: {client: {incorpCert}}}}) => {
             const { clients } = cache.readQuery({
               query: GET_CLIENTS_QUERY,
               variables: {clientId: clientId}
