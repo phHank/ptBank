@@ -39,11 +39,20 @@ class ClientProfile(models.Model):
         return self.company_name if self.company_name else f'{self.first_name} {self.surnames}' 
 
 
+def get_co_upload_path(instance, filename):
+    return os.path.join(
+        f"companies/{instance.id}/", filename
+    )
+
 class Company(models.Model):
     client_profile = models.ForeignKey(ClientProfile, on_delete=models.CASCADE)
     co_name = models.CharField(max_length=200, null=False)
-    address = models.CharField(max_length=200)
-    country = models.CharField(max_length=200)
+    address_1 = models.CharField(max_length=200, null=False)
+    address_2 = models.CharField(max_length=200, null=True)
+    city = models.CharField(max_length=200, null=False)
+    country = models.CharField(max_length=200, null=False)
+    incorp_cert = models.FileField(upload_to=get_co_upload_path, null=True)
+    upload_date = models.DateTimeField(null=True, editable=False)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         null=True, 

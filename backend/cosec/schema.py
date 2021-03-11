@@ -31,7 +31,14 @@ class Query(graphene.ObjectType):
         skip = graphene.Int(),
         order_by = graphene.String()
     )
-    companies = graphene.List(CompanyType, client_id=graphene.Int())
+    companies = graphene.List(
+        CompanyType, 
+        co_id = graphene.Int(),
+        search = graphene.String(),
+        first = graphene.Int(),
+        skip = graphene.Int(),
+        order_by = graphene.String()    
+    )
     count = graphene.Int(target=graphene.String())
 
     @user_passes_test(lambda u: u.is_authenticated and u.is_active)
@@ -48,7 +55,7 @@ class Query(graphene.ObjectType):
                 if profile.id != client_id:
                     raise Exception('Access denied for requested profile.')
 
-            client_profile = ClientProfile.objects.filter(pk=client_id).all()
+            client_profile = ClientProfile.objects.filter(pk=client_id, deleted=False).all()
 
             if not client_profile:
                 raise Exception('Client profile not found.')
@@ -75,13 +82,44 @@ class Query(graphene.ObjectType):
             return query_set
 
     @user_passes_test(lambda u: u.is_authenticated and u.is_active)
-    def resolve_companies(self, info, **kwargs):
+    def resolve_companies(self, info, co_id=None, search=None, first=None, skip=None, order_by='co_name', **kwargs):
         user = info.context.user
 
-        if user.is_staff:
-            return Company.objects.all()
+        if co_id:
+            company = Company.objects.filter(pk=co_id, deleted=False).all()
 
-        return Company.objects.filter(client_id=kwargs['client_id']).all()
+            if not company:
+                raise Exception('Company not found.')
+
+            if not user.is_staff:
+                profile = Profile.objects.filter(user=user).first().client_profile
+
+                if not profile:
+                    raise Exception('User not associated with a client profile.')
+
+                if profile != company.client_profile:
+                   raise Exception('Access denied for requested company.')
+
+            return company
+
+        if user.is_staff:
+            query_set = Company.objects.filter(deleted=False).order_by(f'{order_by}').all()
+
+            if search:
+                filter = (
+                    Q(co_name__icontains=search) |
+                    Q(city__icontains=search) |
+                    Q(country__icontains=search)
+                )
+                query_set = query_set.filter(filter)
+
+            if skip:
+                query_set = query_set[skip:]
+
+            if first:
+                query_set = query_set[:first]
+
+            return query_set
 
 
     @user_passes_test(lambda u: u.is_authenticated and u.is_active)
@@ -94,6 +132,7 @@ class Query(graphene.ObjectType):
 
 
 
+####################################### Client Mutations ######################################################
 
 class CreateClientProfile(graphene.Mutation):
     client_profile = graphene.Field(ClientType)
@@ -150,7 +189,6 @@ class ClientUploadMutation(graphene.Mutation):
     @staff_member_required
     def mutate(self, info, file, client_id, **kwargs):
         # TODO: validate file
-
         try: 
             client = ClientProfile.objects.filter(pk=client_id).first()
 
@@ -216,6 +254,7 @@ class UpdateClientProfile(graphene.Mutation):
 
 class DeleteClientProfile(graphene.Mutation):
     client_profile = graphene.Field(ClientType)
+    deleted_companies = graphene.List(CompanyType)
 
     class Arguments:
         client_profile_id = graphene.Int(required=True)
@@ -240,9 +279,16 @@ class DeleteClientProfile(graphene.Mutation):
         client_profile.updated_by = deleter
         client_profile.save()
 
-        return DeleteClientProfile(client_profile=client_profile)
+        # cascade deletion down to companies. 
+        child_companies = Company.objects.filter(client_profile=client_profile).all()
+        for company in child_companies:
+            company.deleted = True
+            company.save()
+
+        return DeleteClientProfile(client_profile=client_profile, deleted_companies=child_companies)
 
 
+####################################### Company Mutations ######################################################
 class CreateCompany(graphene.Mutation):
     company = graphene.Field(CompanyType)
 
@@ -256,7 +302,11 @@ class CreateCompany(graphene.Mutation):
 
     @user_passes_test(lambda u: u.is_authenticated and u.is_active)
     @staff_member_required
-    def mutate(self, info, client_id, co_name, address, country):
+    def mutate(
+        self, info, client_id, 
+        co_name, address_1, address_2, 
+        city, country
+    ):
         user = info.context.user
         creator = get_user_model().objects.filter(pk=user.id).first()
 
@@ -269,7 +319,11 @@ class CreateCompany(graphene.Mutation):
         if not client:
             raise Exception('Client Profile not found!')
 
-        company = Company(client_profile=client, co_name=co_name, address_1=address_1, address_2=address_2, city=city, country=country, created_by=creator)
+        company = Company(
+            client_profile=client, co_name=co_name, 
+            address_1=address_1, address_2=address_2, 
+            city=city, country=country, 
+            created_by=creator)
         company.save()
 
         return CreateCompany(company=company)
@@ -286,7 +340,6 @@ class CompanyUploadMutation(graphene.Mutation):
     @staff_member_required
     def mutate(self, info, file, company_id, **kwargs):
         # TODO: validate file
-
         try: 
             company = Company.objects.filter(pk=company_id).first()
 
@@ -298,6 +351,90 @@ class CompanyUploadMutation(graphene.Mutation):
 
         return ClientUploadMutation(company=company, success=True)
 
+
+class UpdateCompany(graphene.Mutation):
+    company = graphene.Field(CompanyType)
+
+    class Arguments:
+        co_id = graphene.Int(required=True)
+        client_id = graphene.Int()
+        co_name = graphene.String(required=True)
+        address_1 = graphene.String(required=True)
+        address_2 = graphene.String()
+        city = graphene.String(required=True)
+        country = graphene.String(required=True)
+    
+    @user_passes_test(lambda u: u.is_authenticated and u.is_active)
+    @staff_member_required
+    def mutate(
+        self, info, co_id, co_name,
+        address_1, address_2, city,
+        country, client_id=None, **kwargs
+    ):
+        user = info.context.user
+        editor = get_user_model().objects.filter(pk=user.id).first()
+
+        # TODO: change to g2
+        is_g2 = Profile.objects.filter(user=editor).first().g3
+        if not is_g2:
+            raise Exception('Permission denied, not G2!')
+
+        company = Company.objects.filter(pk=co_id).first()
+
+        if not company:
+            raise Exception('Company not found!')
+
+        company.co_name = co_name
+        company.address_1 = address_1
+        company.address_2 = address_2
+        company.city = city
+        company.country = country
+        company.updated_by = editor
+
+        if client_id:
+            new_client = ClientProfile.objects.filter(pk=client_id).first()
+            
+            if not new_client:
+                raise Exception('update client could not be found.')
+            
+            company.client_profile = new_client 
+
+        company.save()
+
+        return UpdateCompany(company=company)
+
+
+class DeleteCompany(graphene.Mutation):
+    company = graphene.Field(CompanyType)
+
+    class Arguments:
+        co_id = graphene.Int(required=True)
+
+    @user_passes_test(lambda u: u.is_authenticated and u.is_active)
+    @staff_member_required
+    def mutate(self, info, co_id):
+        user = info.context.user
+        deleter = get_user_model().objects.filter(pk=user.id).first()
+
+        # TODO: change to g2
+        is_g2 = Profile.objects.filter(user=deleter).first().g3
+        if not is_g2:
+            raise Exception('Permission denied, not G2!')
+
+        company = Company.objects.filter(pk=co_id).first()
+
+        if not company:
+            raise Exception('Company not found!')
+
+        company.deleted = True
+        company.updated_by = deleter
+        company.save()
+
+        return DeleteCompany(company=company)
+
+
+
+
 class Mutation (graphene.ObjectType):
     create_client_profile = CreateClientProfile.Field()
     client_upload = ClientUploadMutation.Field()
@@ -306,3 +443,5 @@ class Mutation (graphene.ObjectType):
 
     create_company = CreateCompany.Field()
     company_upload = CompanyUploadMutation.Field()
+    update_company = UpdateCompany.Field()
+    delete_company = DeleteCompany.Field()
