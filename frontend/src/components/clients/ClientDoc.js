@@ -52,11 +52,11 @@ const ClientDoc = ({clientId, incorpCert}) => {
             {!showUpload && (<p className='btn text-light' onClick={() => setShowUpload(!showUpload)}>&#43;</p>)}
 
             {showUpload && (
-                <div className='block d-flex flex-row my-5'>
+                <div className='block d-flex flex-row my-3 align-items-center'>
                     <FileInput setFile={setFormFile} />
                     {formFile && (
                         <button 
-                        className='btn btn-sm btn-light m-2 h-25'
+                        className='btn btn-sm btn-light m-2 h-50'
                         onClick={() => {
                             uploadFile({variables: {
                                 clientId: clientId,
