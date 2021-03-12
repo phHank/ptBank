@@ -177,7 +177,7 @@ class CreateClientProfile(graphene.Mutation):
         return CreateClientProfile(client_profile=new_client)
 
 
-class ClientUploadMutation(graphene.Mutation):
+class ClientUpload(graphene.Mutation):
     client = graphene.Field(ClientType)
     success = graphene.Boolean(default_value=False)
 
@@ -198,7 +198,7 @@ class ClientUploadMutation(graphene.Mutation):
         except: 
             raise Exception('File could no be uploaded.')
 
-        return ClientUploadMutation(client=client, success = True)
+        return ClientUpload(client=client, success = True)
 
 
 
@@ -323,25 +323,25 @@ class CreateCompany(graphene.Mutation):
             client_profile=client, co_name=co_name, 
             address_1=address_1, address_2=address_2, 
             city=city, country=country, 
-            created_by=creator)
+            created_by=creator, updated_by=creator)
         company.save()
 
         return CreateCompany(company=company)
 
-class CompanyUploadMutation(graphene.Mutation):
+class CompanyUpload(graphene.Mutation):
     company = graphene.Field(CompanyType)
     success = graphene.Boolean(default_value=False)
 
     class Arguments:
-        company_id = graphene.Int(required=True)
+        co_id = graphene.Int(required=True)
         file = Upload(required=True)
 
     @user_passes_test(lambda u: u.is_authenticated and u.is_active)
     @staff_member_required
-    def mutate(self, info, file, company_id, **kwargs):
+    def mutate(self, info, file, co_id, **kwargs):
         # TODO: validate file
-        try: 
-            company = Company.objects.filter(pk=company_id).first()
+        try:
+            company = Company.objects.filter(pk=co_id).first()
 
             company.incorp_cert = file
             company.upload_date = timezone.now()
@@ -349,7 +349,7 @@ class CompanyUploadMutation(graphene.Mutation):
         except: 
             raise Exception('File could no be uploaded.')
 
-        return ClientUploadMutation(company=company, success=True)
+        return CompanyUpload(company=company, success=True)
 
 
 class UpdateCompany(graphene.Mutation):
@@ -437,11 +437,11 @@ class DeleteCompany(graphene.Mutation):
 
 class Mutation (graphene.ObjectType):
     create_client_profile = CreateClientProfile.Field()
-    client_upload = ClientUploadMutation.Field()
+    client_upload = ClientUpload.Field()
     update_client_profile = UpdateClientProfile.Field()
     delete_client_profile = DeleteClientProfile.Field()
 
     create_company = CreateCompany.Field()
-    company_upload = CompanyUploadMutation.Field()
+    company_upload = CompanyUpload.Field()
     update_company = UpdateCompany.Field()
     delete_company = DeleteCompany.Field()
