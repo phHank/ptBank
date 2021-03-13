@@ -9,7 +9,9 @@ import { resultsPerPage } from '../../utils/constants'
 import Table from 'react-bootstrap/Table'
 
 import Loading from '../Loading'
+import TableHead from '../TableHead'
 import ClientRow from './ClientRow'
+import TableFooter from '../TableFooter'
 import PaginateBar from '../PaginateBar'
 import AddClientForm from './AddClientForm'
 
@@ -70,15 +72,6 @@ const ClientList = () => {
 
   if (searchData) {
     data = searchData
-  } 
-
-  const handlePageChange = newPageNo => {
-    setPageNo(newPageNo)
-    
-    refetch({
-      skip: (newPageNo - 1) * resultsPerPage,
-      first: resultsPerPage
-    })
   }
 
   if (loading) return <Loading />
@@ -90,34 +83,22 @@ const ClientList = () => {
           <div className='d-flex flex-column align-items-center mt-3 p-3'>
             <h3 className='bg-dark text-light rounded p-2'>Clients</h3>
             <Table striped size hover bordered variant='dark'>
-                <thead>
-                    <tr>
-                      <th onClick={() => refetch({orderBy: 'company_name'})}>Company Name</th>
-                      <th onClick={() => refetch({orderBy: 'first_name'})}>First Name</th>
-                      <th onClick={() => refetch({orderBy: 'surnames'})}>Surname(s)</th>
-                      <th onClick={() => refetch({orderBy: 'updated_by'})}>Updated By</th>
-                    </tr>
-                </thead>
-                <tbody>
-                  {data?.clients.map(client => <ClientRow key={client.id} clientData={client} />)}
-                </tbody>
-                {searchData && (
-                  <tfoot >
-                    <tr>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td>Matches Found: {searchData?.clients.length}</td>
-                    </tr>
-                  </tfoot>
-                )}
+              <TableHead 
+                refetch={refetch} 
+                headings={['Company Name', 'First Name', 'Surnames', 'Updated By']}  
+              />
+              <tbody>
+                {data?.clients.map(client => <ClientRow key={client.id} clientData={client} />)}
+              </tbody>
+              {searchData && (<TableFooter resCount={searchData?.clients.length} />)}
             </Table>
 						{!searchData && (
             	<div className='d-block'>
 								<PaginateBar 
 								  page={pageNo} 
-									stopPage={ data?.count / resultsPerPage} 
-									handlePageChange={handlePageChange}
+									count={data?.count}  
+									setPageNo={setPageNo}
+                  refetch={refetch}
 								/>
 							</div>
 						)}

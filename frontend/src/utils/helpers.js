@@ -4,3 +4,9 @@ export const getDateTime = (dateObject) => {
 
     return date + ', at ' + time
 }
+
+export const snakeCase = string => (
+    string.toLowerCase()
+        .split(' ')
+        .join('_')
+)

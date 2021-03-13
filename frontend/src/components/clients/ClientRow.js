@@ -6,7 +6,7 @@ const ClientRow = ({clientData}) => {
     const history = useHistory()
 
     return (
-        <tr onClick={() => history.push(`/clients/${clientData.id}`)}
+        <tr style={{cursor: 'pointer'}} onClick={() => history.push(`/clients/${clientData.id}`)}
         >
             <td>{clientData.companyName ? clientData.companyName : 'N/A'}</td>
             <td>{clientData.firstName ? clientData.firstName : 'N/A'}</td>

@@ -1,15 +1,18 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-// import { useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 
 import { useQuery, gql } from '@apollo/client'
 
 import { resultsPerPage } from '../../utils/constants'
 
-// import Table from 'react-bootstrap/Table'
+import Table from 'react-bootstrap/Table'
 
 import Loading from '../Loading'
-// import PaginateBar from '../PaginateBar'
+import TableHead from '../TableHead'
+import CompanyRow from './CompanyRow'
+import TableFooter from '../TableFooter'
+import PaginateBar from '../PaginateBar'
 import AddCompanyForm from './AddCompanyForm'
 
 
@@ -20,6 +23,7 @@ query GetCompaniesQuery(
 	$first: Int
 	$skip: Int
 	$orderBy: String
+	$target: String = "companies"
 ) {
 	companies (
 		coId: $coId
@@ -47,22 +51,58 @@ query GetCompaniesQuery(
 		}
 		lastUpdated
 	}
+	count (target: $target)
 }
 `
 
 const CompanyList = () => {
-	const {data, loading, error, refetch} = useQuery(GET_COMPANIES_QUERY, {
+	const [pageNo, setPageNo] = useState(1)
+	const history = useHistory()
+	const {location: {searchData, deletedCompany}} = history
+
+	let {data, loading, error, refetch} = useQuery(GET_COMPANIES_QUERY, {
 		variables: {first: resultsPerPage }
 	})
+
+	if (searchData) {
+		data = searchData
+  	}
 
 	if (loading) return <Loading />
 
 	return (
-		<div>
-			{error && <p className='error-message'>Error getting companies' data: {error.message}</p>}
-			<p>{JSON.stringify(data)}</p>
-			<div className='container d-flex justify-content-center my-3'>
-				<AddCompanyForm />
+		<div className='container'>
+			<div>
+				{deletedCompany && <p className='success-message'>{deletedCompany} has been deleted</p>}
+				{error && <p className='error-message'>Error getting companies' data: {error.message}</p>}
+				
+				<div className='d-flex flex-column align-items-center mt-3 p-3'>
+					<h3 className='bg-dark text-light rounded p-2'>Companies</h3>
+					<Table striped size hover bordered variant='dark'>
+					<TableHead 
+						refetch={refetch} 
+						headings={['Co Name', 'City', 'Country', 'Updated By']}  
+					/>
+					<tbody>
+						{data?.companies.map(company => <CompanyRow key={company.id} coData={company} /> )}
+					</tbody>
+					{searchData && (<TableFooter resCount={searchData?.companies.length} />)}
+					</Table>
+					{!searchData && (
+						<div className='d-block'>
+							<PaginateBar 
+							  page={pageNo} 
+							  count={data?.count} 
+							  setPageNo={setPageNo}
+							  refetch={refetch}
+							/>
+						</div>
+					)}
+				</div>
+				
+				<div className='container d-flex justify-content-center my-3'>
+					<AddCompanyForm />
+				</div>
 			</div>
 		</div>
 	)
