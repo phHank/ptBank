@@ -12,6 +12,7 @@ import Dashboard from './Dashboard'
 import ClientList from './clients/ClientList'
 import ClientProfile from './clients/ClientProfile'
 import CompanyList from './companies/CompanyList'
+import CompanyProfile from './companies/CompanyProfile'
 import BankDashboard from './banking/BankDashboard'
 import NotFound from './NotFound'
 import Footer from './Footer'
@@ -103,10 +104,16 @@ const App = () => {
                 <Route 
                   exact
 				  path='/clients/:id'
-                  // TODO: change to g3 to g2
-				  render={() => <ClientProfile g3={data?.userProfile[0].g3} />} 
+                  // TODO: change g3 to g2
+				  render={() => <ClientProfile g2={data?.userProfile[0].g3} />} 
 				/>
                 <Route exact path='/companies' component={CompanyList} />
+                <Route 
+                  exact
+				  path='/companies/:id'
+                  // TODO: change g3 to g2
+				  render={() => <CompanyProfile g2={data?.userProfile[0].g3} />} 
+				/>
                 <Route exact path='/banking' component={BankDashboard} />
                 <Route component={NotFound} />
             </Switch>

@@ -22,8 +22,10 @@ const NavSearch = () => {
 
     const [,target] = location.pathname.split('/')
 
+    const searchables = ['clients', 'companies']
+
     return (
-        location.pathname !== '/' && (
+        searchables.includes(target) && (
             <form onSubmit={async e => {
                     e.preventDefault()
                     const { data, error } = await client.query({

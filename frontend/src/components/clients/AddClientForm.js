@@ -89,7 +89,7 @@ const AddClientForm = () => {
         phone: '',
         country: ''
     })
-    const [formFile, setFormFile] = useState({})
+    const [formFile, setFormFile] = useState(null)
     const [error, setError] = useState(null)
 
     const history = useHistory()

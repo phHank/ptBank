@@ -9,7 +9,7 @@ import ClientCard from './ClientCard'
 import UpdateClientForm from './UpdateClientForm'
 import Loading from '../Loading'
 
-const ClientProfile = g3 => {
+const ClientProfile = g2 => {
     const [edit, setEdit] = useState(false)
     const history = useHistory()
 
@@ -31,7 +31,7 @@ const ClientProfile = g3 => {
             {error
               ? (<p className='error-message'>Error getting client data: {error.message}</p>)
               : (!edit 
-                  ? (<ClientCard setEdit={setEdit} g3={g3} clientData={clientData} />)
+                  ? (<ClientCard setEdit={setEdit} g2={g2} clientData={clientData} />)
                   : (<UpdateClientForm clientData={clientData} setEdit={setEdit} />)
                 )
             }   

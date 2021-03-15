@@ -94,7 +94,7 @@ const AddCompanyForm = () => {
 			city: '',
 			country: ''
     })
-    const [formFile, setFormFile] = useState({})
+    const [formFile, setFormFile] = useState(null)
     const [error, setError] = useState(null)
 		const [clientList, setClientList] = useState([])
 
@@ -147,7 +147,7 @@ const AddCompanyForm = () => {
             coId: id,
             file: formFile
           }})
-          // history.push(`/companies/${id}`)
+          history.push(`/companies/${id}`)
         },
         onError: error => {
             setError(error)

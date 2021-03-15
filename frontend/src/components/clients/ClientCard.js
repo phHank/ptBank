@@ -9,12 +9,11 @@ import ClientUpdateOptions from './ClientUpdateOptions'
 import ClientCardFooter from './ClientCardFooter'
 
 
-const ClientCard = ({clientData, setEdit, g3}) => {
+const ClientCard = ({clientData, setEdit, g2}) => {
     const [confirmDelete, setConfirmDelete] = useState(false)
     
     return (
         <Card bg='dark' text='light' className='m-5'>
-
             
             <ClientCardText clientData={clientData} /> 
 
@@ -22,8 +21,7 @@ const ClientCard = ({clientData, setEdit, g3}) => {
 
             {confirmDelete && (<DeleteClientCard setConfirmDelete={setConfirmDelete} clientId={clientData.id} />)}
             
-            {/* TODO: Change to g2 */}
-            {g3 && (<ClientUpdateOptions setConfirmDelete={setConfirmDelete} setEdit={setEdit} />)}
+            {g2 && (<ClientUpdateOptions setConfirmDelete={setConfirmDelete} setEdit={setEdit} />)}
             
             <ClientCardFooter lastUpdated={clientData.lastUpdated} username={clientData.updatedBy.username} /> 
         </Card>
