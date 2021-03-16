@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import Card from 'react-bootstrap/Card'
 
 import ClientDoc from './ClientDoc'
+import CompaniesList from './CompaniesList'
 import ClientCardText from './ClientCardText'
 import DeleteClientCard from './DeleteClientCard' 
 import ClientUpdateOptions from './ClientUpdateOptions'
@@ -15,7 +16,9 @@ const ClientCard = ({clientData, setEdit, g2}) => {
     return (
         <Card bg='dark' text='light' className='m-5'>
             
-            <ClientCardText clientData={clientData} /> 
+            <ClientCardText clientData={clientData} />
+
+            {clientData.companySet.length > 0 && <CompaniesList companies={clientData?.companySet} />}
 
             <ClientDoc clientId={clientData.id} incorpCert={clientData.incorpCert} />
 

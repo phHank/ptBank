@@ -145,8 +145,12 @@ const UpdateCompanyForm = ({coData, setEdit}) => {
                     req={true}
                     disabled={disableEdit}
                   />
-                  <input type='checkbox' className='mx-1' id='edit-client' onChange={() => setDisableEdit(!disableEdit)} />
-                  <label htmlFor='edit-client'><small>Change company's client?</small></label>
+                  {disableEdit && (
+                    <>
+                      <input type='checkbox' className='mx-1' id='edit-client' onChange={() => setDisableEdit(false)} />
+                      <label htmlFor='edit-client'><small>Change company's client?</small></label>
+                    </>
+                  )}
               </div>
 
               <TextInput 

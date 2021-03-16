@@ -9,13 +9,19 @@ const ClientDropDown = ({name, options, handleChange, defaultVal, req, disabled}
           onChange={e => handleChange(e, name)}
           id={name} 
           className='form-control'
-          defaultValue={defaultVal ? defaultVal : 'disabled'}
+          defaultValue='disabled'
           required={req}
           disabled={disabled}
         >
             <option value='disabled' disabled>-</option>
             {options.map(option => 
-                (<option key={option.clientId} value={option.clientId}>{option.client}</option>)
+                (<option 
+                    key={option.clientId} 
+                    className={defaultVal === option.clientId ? 'bg-dark text-light' : undefined} 
+                    value={option.clientId}
+                 >
+                    {option.client}
+                </option>)
             )}
         </select>
     </div>

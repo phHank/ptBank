@@ -52,12 +52,12 @@ query GetClientsQuery (
           username
       }
       lastUpdated
+      companySet {
+        id
+        coName
+      }
     }
 		count (target: $target)
-    companies {
-      id
-      coName
-    }
   }
 `
 
