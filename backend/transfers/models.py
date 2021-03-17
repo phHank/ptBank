@@ -7,6 +7,12 @@ from cosec.models import Company
 import time
 import datetime
 
+class Bank(models.Model):
+    name = models.CharField(max_length=200, null=False)
+    country = models.CharField(max_length=200, null=False)
+
+    def __str__(self):
+        return f'{self.name} {self.country}'
 
 
 class BankAccount(models.Model):
@@ -14,13 +20,17 @@ class BankAccount(models.Model):
         Company, 
         on_delete=models.CASCADE, 
         related_name='account_holder'
-        )
-    bank_name = models.CharField(max_length=200)
+    )
+    bank = models.ForeignKey(
+        Bank, 
+        on_delete=models.PROTECT, 
+        null=False
+    )
     acc_name = models.CharField(max_length=200, null=False)
-    iban = models.CharField(max_length=34)
-    swift = models.CharField(max_length=11)
-    account_no = models.CharField(max_length=50)
-    sort_code = models.IntegerField()
+    iban = models.CharField(max_length=34, null=True, blank=True)
+    swift = models.CharField(max_length=11, null=True, blank=True)
+    account_no = models.CharField(max_length=50, null=True, blank=True)
+    sort_code = models.IntegerField(null=True, blank=True)
     opened = models.DateField()
     currency_code = models.CharField(max_length=3)
     deleted = models.BooleanField(null=False, default=False)
@@ -31,18 +41,12 @@ class BankAccount(models.Model):
 
 
 class Transfer(models.Model):
-    company = models.ForeignKey(
-        Company, 
-        null=True, #remove this when working with a empty db for production. 
-        on_delete=models.CASCADE, 
-        related_name='remitting_company'
-        )
     account = models.ForeignKey(
         BankAccount, 
         null=True, #remove this when working with a empty db for production. 
-        on_delete=models.CASCADE, 
+        on_delete=models.CASCADE, #Protect in production
         related_name='remitting_account'
-        )
+    )
     date_received = models.IntegerField(default=int(time.time()))
     currency = models.CharField(max_length=100, null=False)
     amount = models.FloatField(null=False)

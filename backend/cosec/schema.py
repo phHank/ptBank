@@ -11,6 +11,7 @@ from graphene_file_upload.scalars import Upload
 
 from .models import ClientProfile, Company
 from users.models import UserProfile as Profile
+from transfers.models import BankAccount
 
 class ClientType(DjangoObjectType):
     class Meta:
@@ -425,6 +426,12 @@ class DeleteCompany(graphene.Mutation):
 
         if not company:
             raise Exception('Company not found!')
+
+        # cascade deletion to bank accounts
+        child_bank_accounts = BankAccount.objects.filter(company=company).all()
+        for account in child_bank_accounts:
+            account.deleted = True
+            account.save()
 
         company.deleted = True
         company.updated_by = deleter
