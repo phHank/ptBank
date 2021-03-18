@@ -14,6 +14,9 @@ import ClientProfile from './clients/ClientProfile'
 import CompanyList from './companies/CompanyList'
 import CompanyProfile from './companies/CompanyProfile'
 import BankDashboard from './banking/BankDashboard'
+import BankList from './banking/banks/BankList'
+import Bank from './banking/banks/Bank'
+import AccountList from './banking/accounts/AccountList'
 import NotFound from './NotFound'
 import Footer from './Footer'
 
@@ -91,9 +94,9 @@ const App = () => {
             {!data?.userProfile && <p className='error-message'>Profile not found!</p>}
             <Switch>
                 <Route 
-                exact 
-                path='/login' 
-                render={() => <Login setTokenInfo={setJwtTokenInfo} />}
+                  exact 
+                  path='/login' 
+                  render={() => <Login setTokenInfo={setJwtTokenInfo} />}
                 />
                 <Route 
                   exact 
@@ -114,7 +117,26 @@ const App = () => {
                   // TODO: change g3 to g2
 				  render={() => <CompanyProfile g2={data?.userProfile[0].g3} />} 
 				/>
-                <Route exact path='/banking' component={BankDashboard} />
+                <Route 
+                  exact 
+                  path='/banking' 
+                  render={() => <BankDashboard profileData={data?.userProfile[0]} />} 
+                />
+                <Route 
+                  exact 
+                  path='/banks' 
+                  render={() => <BankList g3={data?.userProfile[0].g3} />} 
+                />
+                <Route 
+                  exact
+                  path='/banks/:id'
+                  render={() => <Bank g3={data?.userProfile[0].g3} />}
+                />
+                <Route 
+                  exact
+                  path='/bank-accounts'
+                  render={() => <AccountList g3={data?.userProfile[0].g3} /> }
+                />
                 <Route component={NotFound} />
             </Switch>
             <Footer />

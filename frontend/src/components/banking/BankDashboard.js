@@ -1,5 +1,34 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 
-const BankDashboard = () => (<div>Dashboard view navigating to transfers, account openings and statements</div>)
+import Loading from '../Loading'
+import DashboardCard from '../DashboardCard'
+
+const BankDashboard = ({profileData}) => {
+    if (!profileData) return <Loading />
+
+    const {user, g3} = profileData
+
+    return (
+        <div className='dashboard'>
+            <div className="container">
+                <div className="d-flex justify-content-around mt-5">
+                    {user.isStaff && g3 && <DashboardCard header={'Banks'} route={'/banks'}>View and Edit Bank Details</DashboardCard>}
+                    {g3 && (
+                        <>
+                            <DashboardCard header={'Bank Accounts'} route={'/bank-accounts'}>View bank accounts.</DashboardCard>
+                            <DashboardCard header={'Transfers'} route={'/transfers'}>Submit and view Bank transfers.</DashboardCard>
+                            <DashboardCard header={'Statements'} route={'/statements'}>Request statements for available periods.</DashboardCard>
+                        </>)
+                    }
+                </div>
+            </div>
+        </div>
+    )
+}
+
+BankDashboard.propTypes = {
+    profileData: PropTypes.object
+}
 
 export default BankDashboard

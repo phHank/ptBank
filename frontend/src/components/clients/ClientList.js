@@ -55,6 +55,7 @@ query GetClientsQuery (
       companySet {
         id
         coName
+        deleted
       }
     }
 		count (target: $target)
