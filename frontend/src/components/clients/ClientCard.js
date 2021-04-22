@@ -18,7 +18,7 @@ const ClientCard = ({clientData, setEdit, g2}) => {
             
             <ClientCardText clientData={clientData} />
 
-            {clientData.companySet.length > 0 && <CompaniesList companies={clientData?.companySet} />}
+            {clientData.companies.length > 0 && <CompaniesList companies={clientData?.companies} />}
 
             <ClientDoc clientId={clientData.id} incorpCert={clientData.incorpCert} />
 

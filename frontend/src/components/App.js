@@ -106,17 +106,17 @@ const App = () => {
                 <Route exact path='/clients' component={ClientList} />
                 <Route 
                   exact
-				  path='/clients/:id'
+				          path='/clients/:id'
                   // TODO: change g3 to g2
-				  render={() => <ClientProfile g2={data?.userProfile[0].g3} />} 
-				/>
+				          render={() => <ClientProfile g2={data?.userProfile[0].g3} />} 
+				        />
                 <Route exact path='/companies' component={CompanyList} />
                 <Route 
                   exact
-				  path='/companies/:id'
+				          path='/companies/:id'
                   // TODO: change g3 to g2
-				  render={() => <CompanyProfile g2={data?.userProfile[0].g3} />} 
-				/>
+				          render={() => <CompanyProfile g2={data?.userProfile[0].g3} />} 
+				        />
                 <Route 
                   exact 
                   path='/banking' 

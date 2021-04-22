@@ -52,10 +52,9 @@ query GetClientsQuery (
           username
       }
       lastUpdated
-      companySet {
+      companies {
         id
         coName
-        deleted
       }
     }
 		count (target: $target)
