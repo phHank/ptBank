@@ -31,7 +31,7 @@ const BankList = ({g3}) => {
   const {location: {searchData}} = history
 
   let {data, loading, error, refetch} = useQuery(GET_BANKS_QUERY, {
-    // variables: {first: resultsPerPage}
+    variables: {first: resultsPerPage}
   })
 
   if (searchData) {
@@ -48,7 +48,7 @@ const BankList = ({g3}) => {
             <Table striped size hover bordered variant='dark'>
               <TableHead 
                 refetch={refetch} 
-                headings={['Name', 'Country']}  
+                headings={['Name', 'Country', '']}  
               />
               <tbody>
                 {data?.banks.map(bank => <BankRow key={bank.id} bankData={bank} />)}

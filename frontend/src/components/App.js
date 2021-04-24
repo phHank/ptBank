@@ -15,7 +15,6 @@ import CompanyList from './companies/CompanyList'
 import CompanyProfile from './companies/CompanyProfile'
 import BankDashboard from './banking/BankDashboard'
 import BankList from './banking/banks/BankList'
-import Bank from './banking/banks/Bank'
 import AccountList from './banking/accounts/AccountList'
 import NotFound from './NotFound'
 import Footer from './Footer'
@@ -126,11 +125,6 @@ const App = () => {
                   exact 
                   path='/banks' 
                   render={() => <BankList g3={data?.userProfile[0].g3} />} 
-                />
-                <Route 
-                  exact
-                  path='/banks/:id'
-                  render={() => <Bank g3={data?.userProfile[0].g3} />}
                 />
                 <Route 
                   exact

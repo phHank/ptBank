@@ -8,7 +8,7 @@ const TableHead = ({refetch, headings}) => (
             {headings.map(heading => (
                     <th 
                     key={heading} 
-                    onClick={() => refetch({orderBy: snakeCase(heading)})}
+                    onClick={() => heading ? refetch({orderBy: snakeCase(heading)}) : ''}
                     style={{cursor: 'pointer'}}
                     >
                         {heading}
