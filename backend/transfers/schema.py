@@ -1,5 +1,6 @@
 from datetime import timedelta
 from django.utils import timezone
+from django.db.models import Q
 
 import graphene
 from graphene_django import DjangoObjectType
@@ -10,7 +11,6 @@ from graphene_file_upload.scalars import Upload
 
 from .models import Bank, BankAccount, Transfer
 
-from cosec.models import Company
 from cosec.schema import CompanyType
 from users.models import UserProfile
 
@@ -28,13 +28,34 @@ class TransferType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    banks = graphene.List(BankType)
+    banks = graphene.List(BankType, 
+        search = graphene.String(),
+        first = graphene.Int(),
+        skip = graphene.Int(),
+        order_by = graphene.String()
+    )
     bank_accounts = graphene.List(BankAccountType)
     transfers = graphene.List(TransferType)
-    company = graphene.Field(CompanyType)
 
     @user_passes_test(lambda u: u.is_active)
-    def resolve_banks(self, info, **kwargs):
+    def resolve_banks(self, info, search=None, first=None, skip=None, order_by='name', **kwargs):
+        query_set = Bank.objects.order_by(f'{order_by}').all()
+
+        if search:
+            filter = (
+                Q(name__icontains=search) |
+                Q(country__icontains=search)
+            )
+            query_set = query_set.filter(filter)
+
+        if skip:
+            query_set = query_set[skip:]
+
+        if first:
+            query_set = query_set[:first]
+
+        return query_set
+
         return Bank.objects.all()
 
     @user_passes_test(lambda u: u.is_active)
@@ -43,10 +64,6 @@ class Query(graphene.ObjectType):
 
     def resolve_transfers(self, info, **kwargs):
         return Transfer.objects.all()
-
-    def resolve_company(self, info, **kwargs):
-        return Company.objects.all()
-
 
 ####################################### Bank Mutations ######################################################
 

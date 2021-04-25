@@ -12,6 +12,7 @@ from graphene_file_upload.scalars import Upload
 
 from .models import ClientProfile, Company
 from users.models import UserProfile as Profile
+from transfers.models import Bank, BankAccount, Transfer
 
 from .company_schema import CompanyType
 
@@ -81,10 +82,15 @@ class Query(graphene.ObjectType):
     @user_passes_test(lambda u: u.is_authenticated and u.is_active)
     @staff_member_required
     def resolve_count(self, info, target='clients', **kwargs):
-        if target == 'clients':
-            return ClientProfile.objects.filter(deleted=False).count()
-        elif target == 'companies':
-            return Company.objects.filter(deleted=False).count()
+        targets = {
+            'clients': ClientProfile.objects.filter(deleted=False).count(),
+            'companies': Company.objects.filter(deleted=False).count(),
+            'banks': Bank.objects.count(),
+            'accounts': BankAccount.objects.count(),
+            'transfers': Transfer.objects.count(),
+        }
+
+        return targets[target]
 
 
 class CreateClientProfile(graphene.Mutation):
