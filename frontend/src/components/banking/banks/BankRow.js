@@ -2,11 +2,15 @@ import React, { useState } from 'react'
 
 import { useMutation, gql } from '@apollo/client'
 
+import { countryList } from '../../../utils/constants'
+
 const UPDATE_BANK = gql`
 mutation UpdateBank ($bankId: Int!, $name: String!, $country: String!) {
     updateBank(bankId: $bankId, name: $name, country: $country ) {
         bank {
         id
+        name
+        country
         }
     }
 }
@@ -39,16 +43,21 @@ const BankRow = ({bankData}) => {
                       className='form-control form-control-sm bg-dark text-light' 
                       type='text' placeholder='Bank Name' 
                       value={formData.name} 
-                      onChange={({target}) => setForm({...formData, name: target.value})} 
+                      onChange={({target}) => setForm({...formData, name: target.value})}
+                      required
                     />
                 </td>
                 <td>
-                    <input 
-                      className='form-control form-control-sm bg-dark text-light' 
-                      type='text' placeholder='Country' 
-                      value={formData.country} 
+                    <select
                       onChange={({target}) => setForm({...formData, country: target.value})}
-                    />
+                      className='form-control form-control-sm bg-dark text-light'
+                      defaultValue={formData.country}
+                      required
+                    >
+                        {countryList.map(option => 
+                            (<option key={option} value={option}>{option}</option>)
+                        )}
+                    </select>
                 </td>
                 <td className='d-flex justify-content-around'>
                     <button 

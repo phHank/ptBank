@@ -50,22 +50,20 @@ const AddBankForm = () => {
         update: (cache, {data: {createBank: {bank}}}) => {
           const { banks } = cache.readQuery({
             query: GET_BANKS_QUERY,
-            // variables: {first: resultsPerPage}
+            variables: {first: resultsPerPage}
           })
 
           cache.writeQuery({
             query: GET_BANKS_QUERY,
-            // variables: {first: resultsPerPage},
+            variables: {first: resultsPerPage},
             data: {
               banks: [bank, ...banks]
             }
           })
         },
-        onCompleted: ({createBank}) => {
-          history.push(`/banks/${createBank.bank.id}`)
-        },
+        onCompleted: () => history.push('/banks'),
         onError: error => {
-            setError(error)
+          setError(error)
         }
     }) 
 

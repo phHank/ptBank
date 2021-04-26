@@ -16,12 +16,24 @@ import PaginateBar from '../../PaginateBar'
 import AddBankForm from './AddBankForm'
 
 export const GET_BANKS_QUERY = gql`
-query GetBanksQuery {
-    banks {
+query GetBanksQuery (
+  $search: String
+  $orderBy: String
+  $first: Int
+  $skip: Int
+  $target: String = "banks"
+  ) {
+    banks (
+      search: $search
+      orderBy: $orderBy
+      first: $first
+      skip: $skip
+    ) {
         id
         name
         country
     }
+    count (target: $target)
   }
 `
 
@@ -40,6 +52,8 @@ const BankList = ({g3}) => {
 
   if (loading) return <Loading />
 
+  console.log(data)
+
   return (
       <div className='container'>
           {error && <p className='error-message'>Error getting bank data: {error.message}</p>}
@@ -55,20 +69,20 @@ const BankList = ({g3}) => {
               </tbody>
               {searchData && (<TableFooter resCount={searchData?.banks.length} />)}
             </Table>
-				{!searchData && (
+				    {!searchData && (
             	<div className='d-block'>
-                    <PaginateBar 
-                      page={pageNo} 
-					  count={data?.count}  
-					  setPageNo={setPageNo}
-                      refetch={refetch}
-					/>
-				</div>
-				)}
+                <PaginateBar 
+                  page={pageNo} 
+                  count={data?.count}  
+                  setPageNo={setPageNo}
+                  refetch={refetch}
+                />
+				      </div>
+				    )}
           </div>
           {g3 && (
             <div className='container d-flex justify-content-center my-3'>
-                <AddBankForm />
+              <AddBankForm />
             </div>
           )}
           <div style={{height: 10}}></div>

@@ -19,7 +19,7 @@ const Navigation = ({profileData}) => (
         <NavLink to='/' style={linkStyle}>Hi {profileData?.user.firstName}</NavLink>
         <div className='d-flex justify-content-center align-items-center'>
             <h1>
-                <Navbar.Brand href='https://www.pearse-trust.ie/' target='_blank'>
+                <Navbar.Brand href='https://www.siblingsclothes.com/' target='_blank'>
                     Your Brand Here
                 </Navbar.Brand>
             </h1>
