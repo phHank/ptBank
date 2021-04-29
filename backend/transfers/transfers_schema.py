@@ -10,7 +10,7 @@ from graphql_jwt.decorators import user_passes_test, staff_member_required
 from graphene_file_upload.scalars import Upload
 
 from .models import BankAccount, Transfer
-from cosec.models import Company
+from users.models import UserProfile
 
 
 class TransferType(DjangoObjectType):
@@ -21,18 +21,21 @@ class TransferType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     transfers = graphene.List(TransferType)
+    transfer = graphene.Field(TransferType, id=graphene.Int())
 
     def resolve_transfers(self, info, **kwargs):
-        return Transfer.objects.all()
+        return Transfer.objects.filter(deleted=False).all()
+    
+    def resolve_transfer(self, info, id=None, **kwargs):
+        return Transfer.objects.filter(pk=id, deleted=False).first()
 
 
 
-# TODO: update transfer mutations and handle default values for date_received and payment_date in .models.Transfer
 class CreateTransfer(graphene.Mutation):
     transfer = graphene.Field(TransferType)
 
     class Arguments:
-        acc_id = graphene.Int(required=True)
+        bank_acc_id = graphene.Int(required=True)
         currency = graphene.String(required=True)
         amount = graphene.Float(required=True)
         benif_name = graphene.String(required=True) 
@@ -48,25 +51,16 @@ class CreateTransfer(graphene.Mutation):
     @staff_member_required
     def mutate(
             self, info,
-            bank_ac_id, currency, amount,
+            bank_acc_id, currency, amount,
             benif_name, benif_account_no,
             benif_swift, payment_ref, 
-            urgent, security_phrase, 
-            save_benif_details=False, 
+            security_phrase, 
+            save_benif_details=False, urgent=False,
             payment_date=timezone.now() + timedelta(days=1),
             **kwargs
         ):
-
-        user = info.context.user
-        if user.is_anonymous:
-            raise Exception('Not logged in!')
-        
-        company = Company.objects.filter(pk=company_id).first()
-        if not company:
-            raise Exception('Company not found!')
-
         bank_acc = BankAccount.objects.filter(pk=bank_acc_id).first()
-        if not bank_acc: 
+        if bank_acc is None: 
             raise Exception('Bank Account not found!')
 
         transfer = Transfer(
@@ -87,5 +81,36 @@ class CreateTransfer(graphene.Mutation):
         return CreateTransfer(transfer=transfer)
 
 
+class DeleteTransfer(graphene.Mutation):
+    transfer_id = graphene.Int()
+
+    class Arguments:
+        transfer_id = graphene.Int(required=True)
+    
+    @user_passes_test(lambda u: u.is_active)
+    @staff_member_required
+    def mutate(
+        self, info, transfer_id, **kwargs
+    ):
+        user = info.context.user
+
+        is_g3 = UserProfile.objects.filter(user=user).first().g3
+        if not is_g3:
+            raise Exception('Permission denied, not G3!')
+
+        transfer = Transfer.objects.filter(pk=transfer_id, deleted=False).first()
+        if not transfer:
+            raise Exception('Transfer not found.')
+
+        try:
+            transfer.deleted = True
+            transfer.save()
+        except: 
+            raise Exception('Transfer could not be deleted')
+
+        return DeleteTransfer(transfer_id=transfer.id)
+
+
 class Mutation (graphene.ObjectType):
     create_transfer = CreateTransfer.Field()
+    delete_transfer = DeleteTransfer.Field()

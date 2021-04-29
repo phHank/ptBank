@@ -9,7 +9,7 @@ from graphql_jwt.decorators import user_passes_test, staff_member_required
 
 from graphene_file_upload.scalars import Upload
 
-from .models import Bank, Transfer
+from .models import Bank
 from users.models import UserProfile
 
 class BankType(DjangoObjectType):

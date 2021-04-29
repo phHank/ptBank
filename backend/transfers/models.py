@@ -1,11 +1,9 @@
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
 from cosec.models import Company
-
-import time
-import datetime
 
 class Bank(models.Model):
     name = models.CharField(max_length=200, null=False)
@@ -47,7 +45,7 @@ class Transfer(models.Model):
         on_delete=models.CASCADE, #Protect in production
         related_name='remitting_account'
     )
-    date_received = models.IntegerField(default=int(time.time()))
+    date_received = models.DateTimeField(auto_now_add=True)
     currency = models.CharField(max_length=100, null=False)
     amount = models.FloatField(null=False)
     benif_name = models.CharField('beneficiary account name', max_length=200, null=False)
@@ -55,7 +53,7 @@ class Transfer(models.Model):
     benif_swift = models.CharField('beneficiary swift/sort number', max_length=11, null=False)
     save_benif_details = models.BooleanField(default=False)
     payment_ref = models.CharField(max_length=200, null=False)
-    payment_date = models.DateField(null=False, default=datetime.date.today) 
+    payment_date = models.DateField(null=False, default=timezone.now) 
     urgent = models.BooleanField(default=False)
     security_phrase = models.CharField(max_length=5, null=False)
     deleted = models.BooleanField(null=False, default=False)
