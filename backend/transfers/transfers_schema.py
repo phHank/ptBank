@@ -20,12 +20,41 @@ class TransferType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    transfers = graphene.List(TransferType)
+    transfers = graphene.List(TransferType,
+        month = graphene.Int(),
+        year = graphene.Int(),
+        search = graphene.String(),
+        order_by = graphene.String()
+    )
     transfer = graphene.Field(TransferType, id=graphene.Int())
-
-    def resolve_transfers(self, info, **kwargs):
-        return Transfer.objects.filter(deleted=False).all()
     
+    @user_passes_test(lambda u: u.is_active)
+    def resolve_transfers(self, info, 
+        month=None, year=None, 
+        search=None, order_by='-date_received__day',
+        **kwargs
+    ):
+        query_set = Transfer.objects.filter(date_received__year__gte=year,
+            date_received__month__gte=month,
+            date_received__year__lte=year,
+            date_received__month__lte=month,
+            deleted=False) \
+                .order_by(f'{order_by}', '-pk').all()
+
+        if search:
+            filter = (
+                Q(account__acc_name__icontains=search) |
+                Q(amount__icontains=search) |
+                Q(payment_ref__icontains=search) |
+                Q(benif_name__icontains=search) |
+                Q(benif_swift__icontains=search) |
+                Q(benif_account__icontains=search)
+            )
+            query_set = query_set.filter(filter)
+
+        return query_set
+
+    @user_passes_test(lambda u: u.is_active)
     def resolve_transfer(self, info, id=None, **kwargs):
         return Transfer.objects.filter(pk=id, deleted=False).first()
 
@@ -48,7 +77,6 @@ class CreateTransfer(graphene.Mutation):
         urgent = graphene.Boolean()
 
     @user_passes_test(lambda u: u.is_active)
-    @staff_member_required
     def mutate(
             self, info,
             bank_acc_id, currency, amount,
