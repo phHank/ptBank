@@ -16,6 +16,7 @@ import CompanyProfile from './companies/CompanyProfile'
 import BankDashboard from './banking/BankDashboard'
 import BankList from './banking/banks/BankList'
 import AccountList from './banking/accounts/AccountList'
+import TransferList from './banking/transfers/TransferList'
 import NotFound from './NotFound'
 import Footer from './Footer'
 
@@ -130,6 +131,11 @@ const App = () => {
                   exact
                   path='/bank-accounts'
                   render={() => <AccountList g3={data?.userProfile[0].g3} /> }
+                />
+                <Route 
+                  exact
+                  path='/transfers'
+                  render={() => <TransferList g3={data?.userProfile[0].g3} /> }
                 />
                 <Route component={NotFound} />
             </Switch>

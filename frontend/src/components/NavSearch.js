@@ -6,6 +6,7 @@ import { useApolloClient } from '@apollo/client'
 import { GET_CLIENTS_QUERY } from './clients/ClientList'
 import { GET_COMPANIES_QUERY } from './companies/CompanyList'
 import { GET_BANKS_QUERY } from './banking/banks/BankList'
+import { GET_TRANSFERS } from './banking/transfers/TransferList'
 
 const NavSearch = () => {
     const [query, setQuery] = useState('')
@@ -19,12 +20,13 @@ const NavSearch = () => {
     const searchTargets = {
         clients: GET_CLIENTS_QUERY, 
         companies: GET_COMPANIES_QUERY,
-        banks: GET_BANKS_QUERY
+        banks: GET_BANKS_QUERY,
+        transfers: GET_TRANSFERS
     }
 
     const [,target] = location.pathname.split('/')
 
-    const searchables = ['clients', 'companies', 'banks']
+    const searchables = ['clients', 'companies', 'banks', 'transfers']
 
     return (
         searchables.includes(target) && (

@@ -52,8 +52,6 @@ const BankList = ({g3}) => {
 
   if (loading) return <Loading />
 
-  console.log(data)
-
   return (
       <div className='container'>
           {error && <p className='error-message'>Error getting bank data: {error.message}</p>}
