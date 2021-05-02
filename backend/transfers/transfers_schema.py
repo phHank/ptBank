@@ -34,14 +34,8 @@ class Query(graphene.ObjectType):
         search=None, order_by='-date_received__day',
         **kwargs
     ):
-        query_set = Transfer.objects.filter(date_received__year__gte=year,
-            date_received__month__gte=month,
-            date_received__year__lte=year,
-            date_received__month__lte=month,
-            deleted=False) \
-                .order_by(f'{order_by}', '-pk').all()
-
         if search:
+            query_set = Transfer.objects.order_by(f'{order_by}', '-pk').all()
             filter = (
                 Q(account__acc_name__icontains=search) |
                 Q(amount__icontains=search) |
@@ -51,6 +45,13 @@ class Query(graphene.ObjectType):
                 Q(benif_account__icontains=search)
             )
             query_set = query_set.filter(filter)
+        else: 
+            query_set = Transfer.objects.filter(date_received__year__gte=year,
+                date_received__month__gte=month,
+                date_received__year__lte=year,
+                date_received__month__lte=month,
+                deleted=False) \
+                    .order_by(f'{order_by}', '-pk').all()
 
         return query_set
 
