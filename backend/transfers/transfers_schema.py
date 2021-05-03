@@ -31,11 +31,19 @@ class Query(graphene.ObjectType):
     @user_passes_test(lambda u: u.is_active)
     def resolve_transfers(self, info, 
         month=None, year=None, 
-        search=None, order_by='-date_received__day',
+        search=None, order_by='date_received_asc',
         **kwargs
     ):
+        order_bys = {
+            'date_received_asc': '-date_received__day',
+            'account_name': 'account__acc_name',
+            'payment_date': 'payment_date',
+            'amount': 'amount',
+            'benificiary_name': 'benif_name'
+        }
+
         if search:
-            query_set = Transfer.objects.order_by(f'{order_by}', '-pk').all()
+            query_set = Transfer.objects.order_by(f'{order_bys[order_by]}', '-pk').all()
             filter = (
                 Q(account__acc_name__icontains=search) |
                 Q(amount__icontains=search) |
@@ -51,7 +59,7 @@ class Query(graphene.ObjectType):
                 date_received__year__lte=year,
                 date_received__month__lte=month,
                 deleted=False) \
-                    .order_by(f'{order_by}', '-pk').all()
+                    .order_by(f'{order_bys[order_by]}', '-pk').all()
 
         return query_set
 
