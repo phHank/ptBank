@@ -18,7 +18,6 @@ const BankDashboard = ({profileData}) => {
                         <>
                             <DashboardCard header={'Bank Accounts'} route={'/bank-accounts'}>View bank accounts.</DashboardCard>
                             <DashboardCard header={'Transfers'} route={'/transfers'}>Submit and view Bank transfers.</DashboardCard>
-                            <DashboardCard header={'Statements'} route={'/statements'}>Request statements for available periods.</DashboardCard>
                         </>)
                     }
                 </div>

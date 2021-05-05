@@ -10,6 +10,7 @@ import Loading from '../../Loading'
 import TableHead from '../../TableHead'
 import TransferRow from './TransferRow'
 import TableFooter from '../../TableFooter'
+import AddTransferForm from './AddTransferForm'
 
 export const GET_TRANSFERS = gql`
     query GetTransfers (
@@ -37,10 +38,10 @@ export const GET_TRANSFERS = gql`
     }
 `
 
-const TransferList = () => {
-    const currentMonth = new Date().getMonth() + 1
-    const currentYear = new Date().getFullYear()
+export const currentMonth = new Date().getMonth() + 1
+export const currentYear = new Date().getFullYear()
 
+const TransferList = () => {
     const [month, setMonth] = useState(currentMonth)
     const [year, setYear] = useState(currentYear)
     const history = useHistory()
@@ -83,10 +84,10 @@ const TransferList = () => {
 
             <h3 className='bg-dark text-light rounded p-2 mt-1'>Transfers</h3>
 
-            <Table striped size hover bordered variant='dark'>
+            <Table size hover bordered variant='dark'>
               <TableHead 
                 refetch={refetch} 
-                headings={['Acc Name', 'Payment Date', 'Amount', 'Benif Name']}  
+                headings={['Account Name', 'Payment Date', 'Amount', 'Benificiary Name']}  
               />
               <tbody>
                 {data?.transfers.map(tr => <TransferRow key={tr.id} transferData={tr} />)}
@@ -94,6 +95,7 @@ const TransferList = () => {
               {searchData && (<TableFooter resCount={searchData?.transfers.length} />)}
             </Table>
         
+            <AddTransferForm />
         </div>
     )
 }
