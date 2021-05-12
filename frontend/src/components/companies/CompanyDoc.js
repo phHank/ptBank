@@ -44,7 +44,7 @@ const CompanyDoc = ({ coId, incorpCert }) => {
         <div className={`d-flex flex-${showUpload ? 'column' : 'row'} align-items-center`}>
             {error && <div className='error-message'>Error uploading file: {error.message}</div>}
             {incorpCert && (
-                <a href={`http://localhost:8080/media/${incorpCert}`} style={linkStyle} target='_blank'>
+                <a href={`http://localhost:8000/media/${incorpCert}`} style={linkStyle} target='_blank'>
                     Certificate of Incorporation
                 </a>)
             }

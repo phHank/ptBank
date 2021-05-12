@@ -8,6 +8,8 @@ from graphql_jwt.decorators import user_passes_test, staff_member_required
 from .models import Bank, BankAccount, Transfer
 from users.models import UserProfile
 
+from cosec.models import Company
+
 from .transfers_schema import TransferType
 
 
@@ -22,12 +24,33 @@ class BankAccountType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    bank_accounts = graphene.List(BankAccountType)
+    bank_accounts = graphene.List(BankAccountType,
+        search = graphene.String(),
+        first = graphene.Int(),
+        skip = graphene.Int(),
+        order_by = graphene.String()
+    )
     bank_account = graphene.Field(BankAccountType, acc_id=graphene.Int(required=True))
 
     @user_passes_test(lambda u: u.is_active)
-    def resolve_bank_accounts(self, info, **kwargs):
-        return BankAccount.objects.filter(deleted=False).all()
+    def resolve_bank_accounts(self, info, search=None, skip=None, first=None, order_by='acc_name', **kwargs):
+        query_set = BankAccount.objects.filter(deleted=False).order_by(order_by).all()
+
+        if search:
+            filter = (
+                Q(acc_name__icontains=search) |
+                Q(iban__icontains=search) |
+                Q(swift__icontains=search)
+            )
+            query_set = query_set.filter(filter)
+
+        if skip:
+            query_set = query_set[skip:]
+
+        if first:
+            query_set = query_set[:first]
+
+        return query_set
 
     @user_passes_test(lambda u: u.is_active)
     def resolve_bank_account(self, info, acc_id=None, **kwargs):
@@ -45,7 +68,7 @@ class CreateBankAccount(graphene.Mutation):
         swift = graphene.String()
         account_no = graphene.String()
         sort_code = graphene.Int()
-        opened = graphene.Date(required=True)
+        opened = graphene.Date()
         currency_code = graphene.String(required=True)
     
     @user_passes_test(lambda u: u.is_active)
@@ -53,7 +76,7 @@ class CreateBankAccount(graphene.Mutation):
     def mutate(
         self, info, co_id,
         bank_id, acc_name, 
-        opened, currency_code, 
+        currency_code, opened='2021-01-01',
         iban=None, swift=None, 
         account_no=None, sort_code=None,**kwargs
     ):
@@ -127,7 +150,7 @@ class UpdateBankAccount(graphene.Mutation):
             raise Exception('No valid branch identifier provided.')
 
         account = BankAccount.objects.filter(pk=acc_id).first()
-        if not account:
+        if account is None:
             raise Exception('Bank Account not found.')
 
         try:
@@ -147,7 +170,6 @@ class UpdateBankAccount(graphene.Mutation):
 
 class DeleteBankAccount(graphene.Mutation):
     acc_id = graphene.Int()
-    success = graphene.Boolean(default_value=False)
 
     class Arguments:
         acc_id = graphene.Int(required=True)
@@ -164,7 +186,7 @@ class DeleteBankAccount(graphene.Mutation):
             raise Exception('Permission denied, not G3!')
 
         account = BankAccount.objects.filter(pk=acc_id, deleted=False).first()
-        if not account:
+        if account is None:
             raise Exception('Bank Account not found.')
 
         try:
@@ -173,7 +195,7 @@ class DeleteBankAccount(graphene.Mutation):
         except: 
             raise Exception('Bank Account could not be deleted')
 
-        return DeleteBankAccount(acc_id=account.id, success=True)
+        return DeleteBankAccount(acc_id=account.id)
 
 
 class Mutation (graphene.ObjectType):

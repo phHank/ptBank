@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 
-import { useHistory }from 'react-router-dom'
+// import { useHistory } from 'react-router-dom'
 
-import { useMutation, useQuery, gql } from '@apollo/client'
+import { useMutation, gql } from '@apollo/client'
 
 import { currencyList, resultsPerPage } from '../../../utils/constants'
 
@@ -11,8 +11,11 @@ import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 
 import Loading from '../../Loading'
+import SelectCompany from './SelectCompany'
+import SelectBank from './SelectBank'
 import TextInput from '../../forms/TextInput'
-import SelectInput from '../../forms/SelectInput' 
+import SelectInput from '../../forms/SelectInput'
+import SortCodeInput from './SortCodeInput'
 import { GET_ACCOUNTS_QUERY } from './AccountList'
 
 export const NEW_ACCOUNT_MUTATION = gql`
@@ -57,29 +60,20 @@ mutation NewAccountMutation (
 }
 `
 
-export const GET_COMPANIES_LIST_QUERY = gql`
-query GetCompaniesListQuery {
-    companies {
-        id
-        coName
-    }
-} 
-`
-
 const AddBankForm = () => {
     const [formData, setFormData] = useState({
         accName: '',
         iban: '',
         swift: '',
         accNo: '',
-        sortCode: 0,
+        sortCode: ['X', 'X', 'X'],
         currencyCode: 'EUR',
-        coId: 0,
-        bankId: 0
+        coId: '',
+        bankId: ''
     })
     const [error, setError] = useState(null)
 
-    const history = useHistory()
+    // const history = useHistory()
 
     const [createBankAcc, {loading}] = useMutation(NEW_ACCOUNT_MUTATION, {
         variables: {
@@ -87,7 +81,7 @@ const AddBankForm = () => {
             iban: formData.iban,
             swift: formData.swift,
             accountNo: formData.accNo,
-            sortCode: formData.sortCode,
+            sortCode: formData.sortCode.map(n => n < 10 ? `0${n}` : n).join(''),
             currencyCode: formData.currencyCode,
             coId: formData.coId,
             bankId: formData.bankId
@@ -95,24 +89,24 @@ const AddBankForm = () => {
         update: (cache, {data: {createBankAcc: {bankAcc}}}) => {
           const { bankAccounts } = cache.readQuery({
             query: GET_ACCOUNTS_QUERY,
-            // variables: {first: resultsPerPage}
+            variables: {first: resultsPerPage}
           })
 
           cache.writeQuery({
             query: GET_ACCOUNTS_QUERY,
-            // variables: {first: resultsPerPage},
+            variables: {first: resultsPerPage},
             data: {
               bankAccounts: [bankAcc, ...bankAccounts]
             }
           })
         },
-        onCompleted: ({createBankAcc}) => {
+        // onCompleted: ({createBankAcc}) => {
         //   history.push(`/bank-accounts/${createBankAcc.bankAcc.id}`)
-        },
+        // },
         onError: error => {
             setError(error)
         }
-    }) 
+    })
 
     const handleChange = (event, name) => {
         setFormData({
@@ -127,8 +121,8 @@ const AddBankForm = () => {
         <Accordion defaultActiveKey='0' className='w-75 h-100' style={{opacity: 0.85}}>
             <Card bg='dark' text='light' className='d-flex'>
                 <Card.Header>
-                    <Accordion.Toggle 
-                      as={Button} 
+                    <Accordion.Toggle
+                      as={Button}
                       eventKey='1'
                       className='btn-block'
                       onClick={() => setTimeout(() => window.scrollBy(0, 500), 250)} 
@@ -138,15 +132,19 @@ const AddBankForm = () => {
                 </Card.Header>
                 {error && <p className='error-message'>Error creating new bank account: {error.message}</p>}
                 <Accordion.Collapse eventKey='1'>
-                    <form 
-                      className='p-3' 
-                      onSubmit={e => {  
+                    <form
+                      className='p-3'
+                      onSubmit={e => {
                         e.preventDefault()
                         createBankAcc()
                       }}
                     >
                         <div className='form-row'>
-                            {/* TODO: add fields to create bank account */}
+
+                          <SelectCompany setFormData={setFormData} formData={formData} />
+
+                          <SelectBank setFormData={setFormData} formData={formData} />
+
                           <TextInput 
                             name={'accName'}
                             placeholder={'Account Name'} 
@@ -154,6 +152,7 @@ const AddBankForm = () => {
                             handleChange={handleChange}
                             req={true}
                           />
+
                           <SelectInput 
                             name={'currencyCode'}
                             options={currencyList}
@@ -161,6 +160,30 @@ const AddBankForm = () => {
                             handleChange={handleChange}
                             req={true}
                           />
+
+                          <TextInput 
+                            name={'iban'}
+                            placeholder={'IE12PEAR1234561234567'}
+                            value={formData.iban} 
+                            handleChange={handleChange}
+                          />
+
+                          <TextInput 
+                            name={'swift'}
+                            placeholder={'ABCDEFXXX'}
+                            value={formData.swift}
+                            handleChange={handleChange}
+                          />
+
+                          <TextInput 
+                            name={'accNo'}
+                            placeholder={'1234567'}
+                            value={formData.accNo}
+                            handleChange={handleChange}
+                          />
+
+                          <SortCodeInput setFormData={setFormData} formData={formData} />
+
                         </div>
                         <button type='submit' className='btn btn-light my-3'>Submit</button>
                     </form>

@@ -16,8 +16,18 @@ import PaginateBar from '../../PaginateBar'
 import AddAccountForm from './AddAccountForm'
 
 export const GET_ACCOUNTS_QUERY = gql`
-query GetAccountsQuery {
-    bankAccounts {
+query GetAccountsQuery (
+  $search: String
+  $first: Int
+  $skip: Int
+  $orderBy: String
+  ) {
+    bankAccounts (
+      search: $search
+      first: $first
+      skip: $skip
+      orderBy: $orderBy
+      ) {
       id
       accName
       iban
@@ -34,6 +44,7 @@ query GetAccountsQuery {
         coName
       }
     }
+    count (target: "accounts")
   }
 `
 
@@ -43,7 +54,7 @@ const AccountList = ({g3}) => {
   const {location: {searchData}} = history
 
   let {data, loading, error, refetch} = useQuery(GET_ACCOUNTS_QUERY, {
-    // variables: {first: resultsPerPage}
+    variables: {first: resultsPerPage}
   })
 
   if (searchData) {
@@ -67,23 +78,23 @@ const AccountList = ({g3}) => {
               </tbody>
               {searchData && (<TableFooter resCount={searchData?.bankAccounts.length} />)}
             </Table>
-				{!searchData && (
+				    {!searchData && (
             	<div className='d-block'>
-                    <PaginateBar 
-                      page={pageNo} 
-					  count={data?.count}  
-					  setPageNo={setPageNo}
-                      refetch={refetch}
-					/>
-				</div>
-				)}
+                <PaginateBar 
+                  page={pageNo} 
+                  count={data?.count}  
+                  setPageNo={setPageNo}
+                  refetch={refetch}
+                />
+				      </div>
+				    )}
           </div>
           {g3 && (
             <div className='container d-flex justify-content-center my-3'>
                 <AddAccountForm />
             </div>
           )}
-          <div style={{height: 10}}></div>
+          <div style={{height: 20}}></div>
       </div>
   )
 }

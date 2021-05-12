@@ -15,7 +15,7 @@ import { createUploadLink } from 'apollo-upload-client'
 import App, { AUTH_TOKEN } from './components/App'
 
 const link = createUploadLink({
-    uri: 'http://localhost:8080/graphql/',
+    uri: 'http://localhost:8000/graphql/',
   })
 
 const authLink = setContext((_, {headers}) => {

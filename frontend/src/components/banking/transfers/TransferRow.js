@@ -6,7 +6,7 @@ const TransferRow = ({transferData}) => {
     const history = useHistory()
 
     return (
-        <tr style={{cursor: 'pointer'}} onClick={() => history.push(`/transfers/${transferData.id}`)}>
+        <tr style={{cursor: 'pointer'}} onClick={() => undefined /* history.push(`/transfers/${transferData.id}`) */}>
             <td className={transferData.urgent ? 'bg-warning text-dark' : ''} >{transferData.account.accName}</td>
             <td className={transferData.urgent ? 'bg-warning text-dark' : ''} >{transferData.paymentDate}</td>
             <td className={transferData.urgent ? 'bg-warning text-dark' : ''} >{transferData.currency} {transferData.amount}</td>

@@ -47,7 +47,8 @@ const TransferList = () => {
     const history = useHistory()
     const {location: {searchData}} = history
 
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Nov', 'Dec']
+    const allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Nov', 'Dec']
+    const months = Number(year) === currentYear ? allMonths.slice(0,currentMonth) : allMonths 
 
     const yearRange = []
     for (let i=2021; i<=currentYear; i++) {

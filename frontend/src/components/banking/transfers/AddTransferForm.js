@@ -1,18 +1,18 @@
 import React, { useState } from 'react'
 
-import { useHistory }from 'react-router-dom'
+// import { useHistory }from 'react-router-dom'
 
-import { useMutation, useQuery, gql } from '@apollo/client'
-
-import { currencyList } from '../../../utils/constants'
+import { useMutation, gql } from '@apollo/client'
 
 import Accordion from 'react-bootstrap/Accordion'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 
 import Loading from '../../Loading'
+import SelectDebitAccount from './SelectDebitAccount'
+import AmountInput from './AmountInput'
 import TextInput from '../../forms/TextInput'
-import { GET_ACCOUNTS_QUERY } from '../accounts/AccountList'
+import UrgentTransfer from './UrgentTransfer'
 import { GET_TRANSFERS, currentMonth, currentYear } from './TransferList'
 
 export const NEW_TRANSFER_MUTATION = gql`
@@ -67,7 +67,7 @@ const AddTransferForm = () => {
     })
     const [error, setError] = useState(null)
 
-    const history = useHistory()
+    // const history = useHistory()
 
     const [createTransfer, {loading}] = useMutation(NEW_TRANSFER_MUTATION, {
         variables: {
@@ -101,15 +101,13 @@ const AddTransferForm = () => {
             }
           })
         },
-        onCompleted: ({createTransfer: {transfer}}) => {
+        // onCompleted: ({createTransfer: {transfer}}) => {
         //   history.push(`/transfers/${transfer.id}`)
-        },
+        // },
         onError: error => {
             setError(error)
         }
     }) 
-
-    const { data } = useQuery(GET_ACCOUNTS_QUERY)
 
     const handleChange = (event, name) => {
         setFormData({
@@ -154,46 +152,10 @@ const AddTransferForm = () => {
                     >
                         <div className='form-row'>
 
-                          <label htmlFor='acc'>Debiting Account</label>
-                          <select id='acc' className='form-control' onChange={e => handleAccountSelect(e)} defaultValue='disabled'>
-                              <option disabled value='disabled'>-</option>
-                            {data?.bankAccounts.map(acc => (
-                                <option key={acc.id} value={`${acc.id};${acc.currencyCode}`}>
-                                    {acc.accName} {acc.currencyCode} | {acc.bank.name}
-                                </option>))}
-                          </select>
-                        
-                        
-                          <label className='col'>Transfer Amount: </label>
-                          <div className='form-control w-50 bg-dark'>
-                          <select
-                            id='val'
-                            className='bg-light text-dark mt-1'
-                            style={{
-                                padding: 10,
-                                border: '1px solid rgba(0,0,0,0.3)',
-                                borderRadius: 4
-                            }}
-                            onChange={e => handleChange(e, 'currency')}
-                            value={formData.currency}
-                          >
-                            {currencyList.map(option => 
-                                (<option key={option} value={option}>{option}</option>)
-                            )}
-                          </select>
+                          <SelectDebitAccount handleAccountSelect={handleAccountSelect} />
 
-                          <input
-                            className='bg-light text-dark'
-                            type='number' 
-                            step='0.01' 
-                            min='0' 
-                            placeholder='0.00' 
-                            value={formData.amount} 
-                            onChange={e => handleChange(e, 'amount')} 
-                          />
-                          </div>
-
-
+                          <AmountInput handleChange={handleChange} formData={formData} />
+                          
                           <TextInput 
                             name={'benifName'}
                             placeholder={'Account Holder Name'} 
@@ -233,17 +195,9 @@ const AddTransferForm = () => {
                             handleChange={handleChange}
                             req={true}
                           />
-                          
-                          <label htmlFor='urgent'>Urgent Transfer: </label>
-                          <input 
-                            id='urgent'
-                            type='checkbox'
-                            onChange={() => setFormData({
-                                ...formData,
-                                urgent: !formData.urgent
-                            })}
-                          />
-                        
+
+                          <UrgentTransfer setFormData={setFormData} formData={formData} />
+
                         </div>
                         <button type='submit' className='btn btn-light my-3'>Submit</button>
                     </form>

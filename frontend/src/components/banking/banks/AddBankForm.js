@@ -98,22 +98,22 @@ const AddBankForm = () => {
                         createBank()
                       }}
                     >
-                        <div className='form-row'>
-                          <TextInput 
-                            name={'name'}
-                            placeholder={'Bank Name'} 
-                            value={formData.name} 
-                            handleChange={handleChange}
-                            req={true}
-                          />
-                          <SelectInput 
-                            name={'country'}
-                            options={countryList}
-                            handleChange={handleChange}
-                            req={true}
-                          />
-                        </div>
-                        <button type='submit' className='btn btn-light my-3'>Submit</button>
+                      <div className='form-row'>
+                        <TextInput 
+                          name={'name'}
+                          placeholder={'Bank Name'} 
+                          value={formData.name} 
+                          handleChange={handleChange}
+                          req={true}
+                        />
+                        <SelectInput 
+                          name={'country'}
+                          options={countryList}
+                          handleChange={handleChange}
+                          req={true}
+                        />
+                      </div>
+                      <button type='submit' className='btn btn-light my-3'>Submit</button>
                     </form>
                 </Accordion.Collapse>
             </Card>

@@ -50,6 +50,22 @@ query GetCompaniesQuery(
 			username
 		}
 		lastUpdated
+		accountHolder {
+			id
+			accName
+			iban
+			currencyCode
+			bank {
+			  name
+			}
+			transfers {
+			  id
+			  currency
+			  amount
+			  benifName
+			  paymentDate
+			}
+		}
 	}
 	count (target: $target)
 }

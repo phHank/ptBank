@@ -1,7 +1,7 @@
 import React from 'react'
 
 const CompanyUpdateOptions = ({setConfirmDelete, setEdit}) => (
-    <div className='d-flex w-100 justify-content-end center'>
+    <div className='d-flex w-100 justify-content-start'>
         <button 
           className='btn btn-sm btn-light mx-1'
           onClick={() => {
@@ -9,13 +9,13 @@ const CompanyUpdateOptions = ({setConfirmDelete, setEdit}) => (
             setEdit(true)
           }}
         >
-            Edit
+          Edit Company
         </button>
         <button 
           className='btn btn-sm btn-danger'
           onClick={() => setConfirmDelete(true)}
         >
-            Delete
+          Delete Company
         </button>
     </div>
 )
