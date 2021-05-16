@@ -143,11 +143,63 @@ There are several custom built models for this app:
 
 
 ## Queries
- **TODO**: give example Queries 
+
+All values of the above fields can be retrieved with the following GraphQL Queries. 
+
+| Query    | Underlying Model            | Paramaters          |
+|-----------------|------------------|-------------------         |
+| users                | django.contrib.auth.models.User     | N/A |
+| userProfile         | UserProfile           | N/A  |
+| clients         | ClientProfile           | clientId: Int, search: String, first: Int, skip: Int, orderBy: String |
+| companies         | Company           | coId: Int, search: String, first: Int, skip: Int, orderBy: String |
+| banks        |  Bank         | search: String, first: Int, skip: Int, orderBy: String |
+| bankAccounts         | BankAccount           | search: String, first: Int, skip: Int, orderBy: String |
+| bankAccount         | BankAccount           | accId: Int! |
+| transfers         | Transfer           | month: Int, year: Int, search: String, orderBy: String |
+| transfer         | Transfer           | id: Int! |
+| count        | ClientProfile, Company, Bank, BankAccount, Transfer           | target: String! = 'clients'  |
+
+
+
+**NB** To query fields, camelCase is used in the GraphQ sytanx, for example, to retrieve the account name, amount, and benificiary name of a transfer with an ID of 42 use the following query:
+
+```javascript
+{
+  transfer (id: 42 ) {
+    account { 
+      accName
+    }
+    amount
+    benifName
+  }
+}
+```
+
 
 ## Mutations
- **TODO**: give example Mutations
 
+| Mutation    | Underlying Model            | Paramaters          |
+|-----------------|------------------|-------------------         |
+| createUser             | django.contrib.auth.models.User     | username: String!, password: String!, email: String! |
+| createUserProfile         | UserProfile           | username: String!, password: String!, email: String!, clientId: Int, isStaff: Boolean, g1: Boolean, g2: Boolean, g3: Boolean |
+| tokenAuth         | Django GraphQL JWT           | username: String!, password: String! |
+| verifyToken         | Django GraphQL JWT           | token: String! |
+| refreshToken         | Django GraphQL JWT           | token: String! |
+
+**NB** To mutate, camelCase is used in the GraphQ sytanx, for example, to create a new user profile the following can be used:
+
+```javascript
+mutation {
+  createUserProfile (username: "USERNAME" password: "YOUR_PASSWORD", email: "EMAIL@EMAIL.COM", clientId: 1) {
+    user {
+      id
+      username
+      email
+    }
+    g1
+  }
+}
+```
 
 ## Authenication and Security
 This app is not protect against brute force password guessing or the like. It is recommended to install Django-Axes or to at least implement Captcha, or better yet MFA to beef up security. As this is only a proof of concept, the use of JWT's was fit for purpose.

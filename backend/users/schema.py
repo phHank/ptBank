@@ -69,10 +69,11 @@ class CreateUserProfile(graphene.Mutation):
         is_staff = graphene.Boolean()
         g1 = graphene.Boolean()
         g2 = graphene.Boolean()
+        g3 = graphene.Boolean()
 
     def mutate(
         self, info, username, password, email, 
-        client_id=None, g1=False, g2=False, is_staff=False
+        client_id=None, g1=False, g2=False, g3=False, is_staff=False
         ):
         creator = info.context.user
         if creator.is_anonymous:
@@ -91,7 +92,7 @@ class CreateUserProfile(graphene.Mutation):
 
         client = ClientProfile.objects.filter(pk=client_id).first()
         
-        user_profile = UserProfile(user=user, client_profile=client, g1=g1, g2=g2)
+        user_profile = UserProfile(user=user, client_profile=client, g1=g1, g2=g2, g3=g3)
         user_profile.save()
 
         return CreateUserProfile(user_profile=user_profile)
