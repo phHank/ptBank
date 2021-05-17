@@ -202,4 +202,4 @@ mutation {
 ```
 
 ## Authenication and Security
-This app is not protect against brute force password guessing or the like. It is recommended to install Django-Axes or to at least implement Captcha, or better yet MFA to beef up security. As this is only a proof of concept, the use of JWT's was fit for purpose.
+This app is not protected against brute force password guessing or the like. It is recommended to install Django-Axes or to at least implement Captcha, or better yet MFA to beef up security. As this is only a proof of concept, the use of JWT's was fit for purpose.

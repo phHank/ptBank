@@ -14,4 +14,4 @@ The app was built and tested with:
  - install the dependencies with `npm install`
  - run the dev server for the first time with `npm run start` and with `npm start` for any subsequent runs.
  - go to http://localhost:3002/ in a modern browser to interact with the app
- - **NB** make sure the backend server is running post 8000 before logging in.
+ - **NB** make sure the backend server is running on port 8000 before logging in.
