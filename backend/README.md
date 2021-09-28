@@ -22,8 +22,8 @@ The app was built and tested with:
  - After cloning the project with `git clone https://github.com/phHank/ptBank.git`
  - `cd backend/`
  - install the dependencies with `pip install -r requirements.txt` **NB** It is advisable to perform this step and subsequent steps while in a virtual environment.
- - implement the database schema with `python manage.py migrate`
- - create an admin account with `python manage.py createsuperuser`
+ - implement the database schema with `python manage.py makemigrations && python manage.py migrate`
+ - create an admin account with `python manage.py createsuperuser` (You may need to perform this step in a CLI with admin privileges)
  - Now immediately give your newly created superuser permissions to view banking/g3 info (where g3, short for Group 3, is banking, g1 is legal, and g2 is incorporations/company secretarial):
     - `python manage.py shell`
     - &gt; `from users.models import UserProfile`
